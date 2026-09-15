@@ -14,6 +14,19 @@ Não tem build, não tem servidor, não tem dependência instalada — é um `in
 
 ---
 
+## Já está no ar
+
+O sistema está publicado e ligado a um banco de verdade:
+
+- **Site:** https://elizabeth-silvano-ca.github.io/resgate-animais/
+- **Projeto Supabase:** `resgate-animais`, organização `Resgate`, região São Paulo
+- Auto-cadastro **desligado** — contas são criadas no painel do Supabase
+
+O passo a passo abaixo fica como referência: para refazer a instalação do zero,
+migrar para outra conta ou entender o que foi configurado.
+
+---
+
 ## Só quer ver como é? (sem instalar nada)
 
 Abra o sistema. A tela de login avisa que ainda não há banco ligado e oferece
