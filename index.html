@@ -1,0 +1,1470 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resgate — Cadastro de Animais</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#f5f4f0; --surface:#ffffff; --line:#e4e1d9; --line-strong:#d2cec2;
+    --ink:#23211d; --ink-soft:#6b6558; --brand:#2f6b55; --brand-ink:#1d4638;
+    --brand-soft:#e6efe9; --danger:#a8341f; --danger-soft:#fbeae6;
+    --amber:#8a5a10; --amber-soft:#faf0dc; --blue:#2a5878; --blue-soft:#e6eef4;
+    --radius:12px; --shadow:0 1px 2px rgba(35,33,29,.06), 0 6px 18px rgba(35,33,29,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em}
+  a{color:var(--brand-ink)}
+  .hidden{display:none !important}
+
+  /* ---------- botões e campos ---------- */
+  button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid transparent;padding:9px 14px;transition:.12s}
+  .btn{background:var(--surface);border:1px solid var(--line-strong);color:var(--ink)}
+  .btn:hover{background:#faf9f6;border-color:#bdb8aa}
+  .btn-primary{background:var(--brand);border:1px solid var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-ink)}
+  .btn-danger{background:var(--danger-soft);color:var(--danger);border:1px solid #f0cfc7}
+  .btn-danger:hover{background:#f7ddd6}
+  .btn-ghost{background:transparent;border-color:transparent;color:var(--ink-soft);padding:6px 10px}
+  .btn-ghost:hover{background:#ecebe5;color:var(--ink)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;
+    letter-spacing:.02em;text-transform:uppercase}
+  input[type=text],input[type=email],input[type=password],input[type=date],select,textarea{
+    width:100%;padding:9px 11px;border:1px solid var(--line-strong);border-radius:9px;
+    background:var(--surface);color:var(--ink);font:inherit}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);outline-offset:-1px;border-color:var(--brand)}
+  textarea{min-height:76px;resize:vertical}
+  input[type=file]{width:100%;font-size:13px;color:var(--ink-soft)}
+  .check{display:flex;align-items:center;gap:8px;margin-top:22px}
+  .check input{width:17px;height:17px;accent-color:var(--brand)}
+  .check label{margin:0;text-transform:none;font-size:14px;color:var(--ink);font-weight:500}
+  .field{margin-bottom:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 14px}
+
+  /* ---------- telas de entrada ---------- */
+  .center-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+  .card-narrow{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);
+    border-radius:16px;padding:28px;box-shadow:var(--shadow)}
+  .card-narrow .logo{font-size:30px;margin-bottom:6px}
+  .card-narrow p.sub{margin:6px 0 22px;color:var(--ink-soft);font-size:14px}
+  .tabs{display:flex;gap:4px;background:#efeee8;padding:4px;border-radius:10px;margin-bottom:20px}
+  .tabs button{flex:1;background:transparent;color:var(--ink-soft);padding:7px;font-size:14px;font-weight:600}
+  .tabs button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.07)}
+  .msg{margin-top:14px;padding:10px 12px;border-radius:9px;font-size:13.5px;line-height:1.45}
+  .msg.err{background:var(--danger-soft);color:var(--danger)}
+  .msg.ok{background:var(--brand-soft);color:var(--brand-ink)}
+  code.inline{background:#efeee8;padding:1px 5px;border-radius:4px;font-size:12.5px}
+
+  /* ---------- app ---------- */
+  .faixa-demo{background:var(--amber-soft);border-bottom:1px solid #e8d9b5;color:var(--amber);
+    padding:9px 20px;font-size:13.5px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    justify-content:center;text-align:center}
+  .faixa-demo button{background:var(--surface);border:1px solid #e0cda3;color:var(--amber);
+    padding:5px 11px;font-size:13px;font-weight:600}
+  .ou{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--ink-soft);font-size:12.5px}
+  .ou::before,.ou::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .topbar{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+  .topbar-in{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16.5px;margin-right:auto}
+  .brand span.mark{font-size:22px}
+  .who{font-size:13px;color:var(--ink-soft);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  main{max-width:1120px;margin:0 auto;padding:22px 20px 80px}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+  .search{flex:1;min-width:200px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{background:var(--surface);border:1px solid var(--line-strong);color:var(--ink-soft);
+    padding:7px 13px;border-radius:999px;font-size:13.5px;font-weight:600}
+  .chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px 16px;min-width:108px}
+  .stat b{display:block;font-size:22px;line-height:1.2;letter-spacing:-.02em}
+  .stat span{font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;font-weight:600}
+
+  .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:16px}
+  .animal{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;cursor:pointer;box-shadow:var(--shadow);transition:.14s;text-align:left;padding:0;width:100%}
+  .animal:hover{transform:translateY(-2px);border-color:var(--line-strong)}
+  .thumb{aspect-ratio:4/3;background:#eceae3;display:flex;align-items:center;justify-content:center;
+    font-size:38px;color:#c3bfb3;overflow:hidden}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .animal-body{padding:12px 14px 14px}
+  .animal-body h3{font-size:16px;margin-bottom:3px}
+  .animal-meta{font-size:13px;color:var(--ink-soft);margin-bottom:9px}
+  .badge{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;
+    text-transform:uppercase;letter-spacing:.04em}
+  .b-adotado{background:var(--brand-soft);color:var(--brand-ink)}
+  .b-disponivel{background:var(--blue-soft);color:var(--blue)}
+  .b-tratamento{background:var(--amber-soft);color:var(--amber)}
+  .empty{text-align:center;padding:60px 20px;color:var(--ink-soft)}
+  .empty .mark{font-size:44px;display:block;margin-bottom:10px;opacity:.55}
+
+  /* ---------- modais ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(35,33,29,.42);display:flex;align-items:flex-start;
+    justify-content:center;padding:24px 16px;overflow-y:auto;z-index:50;backdrop-filter:blur(2px)}
+  .modal{background:var(--surface);border-radius:16px;width:100%;max-width:660px;box-shadow:0 18px 50px rgba(0,0,0,.22);
+    margin:auto}
+  .modal-head{display:flex;align-items:center;gap:10px;padding:18px 22px;border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:var(--surface);border-radius:16px 16px 0 0;z-index:2}
+  .modal-head h2{font-size:18px;margin-right:auto}
+  .modal-body{padding:22px}
+  .modal-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 22px;border-top:1px solid var(--line);
+    position:sticky;bottom:0;background:var(--surface);border-radius:0 0 16px 16px;flex-wrap:wrap}
+  .modal-foot .left{margin-right:auto}
+
+  fieldset{border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:0 0 18px}
+  legend{font-size:12.5px;font-weight:700;color:var(--brand-ink);text-transform:uppercase;letter-spacing:.04em;padding:0 6px}
+
+  .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .thumbs figure{margin:0;position:relative;width:78px;height:78px;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+  .thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumbs button{position:absolute;top:3px;right:3px;background:rgba(35,33,29,.78);color:#fff;border:0;
+    border-radius:50%;width:21px;height:21px;padding:0;font-size:13px;line-height:1;display:flex;
+    align-items:center;justify-content:center}
+
+  .galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;margin-top:10px}
+  .galeria a{display:block;aspect-ratio:1;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+  .galeria img{width:100%;height:100%;object-fit:cover;display:block}
+  .galeria .falhou{aspect-ratio:1;border-radius:9px;border:1px dashed var(--line-strong);
+    background:#faf9f6;color:var(--ink-soft);font-size:12px;display:flex;align-items:center;
+    justify-content:center;text-align:center;padding:8px;line-height:1.35}
+
+  dl.ficha{margin:0;display:grid;grid-template-columns:150px 1fr;gap:9px 16px;font-size:14.5px}
+  dl.ficha dt{color:var(--ink-soft);font-size:12.5px;font-weight:600;text-transform:uppercase;
+    letter-spacing:.02em;padding-top:2px}
+  dl.ficha dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+  .sec-title{font-size:12.5px;font-weight:700;color:var(--brand-ink);text-transform:uppercase;
+    letter-spacing:.04em;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .sec-title:first-child{margin-top:0}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;
+    padding:11px 18px;border-radius:10px;font-size:14px;z-index:90;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:90vw}
+  .toast.err{background:var(--danger)}
+
+  ol.passos{padding-left:20px;font-size:14px;line-height:1.7;color:var(--ink-soft)}
+
+  /* ---------- abas e painel de castração ---------- */
+  .abas{display:flex;border-bottom:1px solid var(--line);margin-bottom:18px}
+  .aba{background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;
+    color:var(--ink-soft);font-weight:600;padding:9px 2px;margin-right:22px;
+    display:flex;align-items:center;gap:8px}
+  .aba:hover{color:var(--ink)}
+  .aba.on{color:var(--brand-ink);border-bottom-color:var(--brand)}
+  .cont{background:var(--amber-soft);color:var(--amber);font-size:12px;font-weight:700;
+    padding:1px 8px;border-radius:999px;min-width:23px;text-align:center}
+  .cont.zero{background:#eceae3;color:var(--ink-soft)}
+
+  .nota{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--amber);
+    border-radius:var(--radius);padding:12px 16px;margin:0 0 18px;font-size:14px;color:var(--ink-soft)}
+  .grupo{font-size:12.5px;font-weight:700;color:var(--brand-ink);text-transform:uppercase;
+    letter-spacing:.04em;margin:22px 0 10px}
+  .grupo:first-child{margin-top:0}
+
+  .castra{display:flex;gap:14px;align-items:flex-start;background:var(--surface);
+    border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;
+    box-shadow:var(--shadow)}
+  .castra .mini{width:62px;height:62px;border-radius:9px;background:#eceae3;flex:none;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;font-size:24px;color:#c3bfb3}
+  .castra .mini img{width:100%;height:100%;object-fit:cover;display:block}
+  .castra .dados{flex:1;min-width:0}
+  .castra .nome{font-size:16px;font-weight:650;background:none;border:0;padding:0;color:var(--ink);
+    text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:3px}
+  .castra .nome:hover{text-decoration-color:var(--brand)}
+  .castra .meta{font-size:13px;color:var(--ink-soft);margin:4px 0 0}
+  .castra .quem{font-size:14px;margin:8px 0 0;overflow-wrap:anywhere}
+  .castra .sem-contato{color:var(--danger)}
+  .selo{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;
+    margin-top:9px;letter-spacing:.03em}
+  .selo-novo{background:var(--danger-soft);color:var(--danger)}
+  .selo-ok{background:var(--brand-soft);color:var(--brand-ink)}
+  .castra .acoes{display:flex;flex-direction:column;gap:7px;flex:none;width:176px}
+  .castra .acoes>*{font-size:13.5px;padding:8px 11px;text-align:center;text-decoration:none;
+    display:block;width:100%;border-radius:9px;box-sizing:border-box}
+  ol.passos b{color:var(--ink)}
+
+  @media (max-width:620px){
+    main{padding:16px 14px 60px}
+    .who{display:none}
+    .topbar-in{padding:10px 14px;gap:7px;flex-wrap:nowrap}
+    .brand{font-size:15px}
+    .brand span.mark{font-size:19px}
+    .topbar-in button{padding:7px 10px;font-size:13px;white-space:nowrap}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .stat{min-width:0;padding:10px 7px}
+    .stat b{font-size:19px}
+    .stat span{font-size:10px;letter-spacing:0;line-height:1.25}
+    .search{flex-basis:100%}
+    #btn-novo{width:100%}
+    .grid-cards{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px}
+    .thumb{aspect-ratio:1;font-size:30px}
+    .animal-body{padding:10px 11px 12px}
+    .animal-body h3{font-size:15px}
+    .animal-meta{font-size:12px;margin-bottom:8px}
+    .aba{margin-right:16px;font-size:14px}
+    .castra{flex-wrap:wrap;gap:12px}
+    .castra .acoes{width:100%;flex-direction:row;flex-wrap:wrap}
+    .castra .acoes>*{flex:1 1 140px;width:auto}
+    .grid2,.grid3{grid-template-columns:1fr}
+    dl.ficha{grid-template-columns:1fr;gap:2px 0}
+    dl.ficha dd{margin-bottom:9px}
+    .modal-head,.modal-body,.modal-foot{padding-left:16px;padding-right:16px}
+    .overlay{padding:0}
+    .modal{border-radius:0;min-height:100vh;display:flex;flex-direction:column}
+    .modal>form{display:flex;flex-direction:column;flex:1}
+    .modal-body{flex:1}
+    .modal-head,.modal-foot{border-radius:0}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ 1. CONFIGURAÇÃO (só aparece se faltar a chave) ============ -->
+<div id="tela-setup" class="center-screen hidden">
+  <div class="card-narrow">
+    <div class="logo">🐾</div>
+    <h1>Conectar ao banco de dados</h1>
+    <p class="sub">Cole abaixo os dados do seu projeto no Supabase. Eles ficam salvos neste navegador
+      e você pode gerar um link já configurado para as outras pessoas.</p>
+    <div class="field">
+      <label for="cfg-url">URL do projeto</label>
+      <input id="cfg-url" type="text" placeholder="https://xxxxxxxx.supabase.co" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="cfg-key">Chave anon public</label>
+      <input id="cfg-key" type="text" placeholder="eyJhbGciOi..." autocomplete="off">
+    </div>
+    <button class="btn-primary" id="cfg-salvar" style="width:100%">Conectar</button>
+    <div id="cfg-msg"></div>
+
+    <div class="ou">ou</div>
+    <button class="btn" id="cfg-demo" style="width:100%">Ver demonstração sem instalar nada</button>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:9px 0 0;text-align:center">
+      Roda tudo no seu navegador, com animais de exemplo. Nada é enviado para lugar nenhum.</p>
+    <details style="margin-top:20px">
+      <summary style="cursor:pointer;font-size:13.5px;color:var(--ink-soft)">Onde encontro isso?</summary>
+      <ol class="passos" style="margin-top:10px">
+        <li>Crie um projeto grátis em <b>supabase.com</b></li>
+        <li>Abra <b>SQL Editor</b> e rode o arquivo <code class="inline">supabase-schema.sql</code></li>
+        <li>Vá em <b>Project Settings → API</b></li>
+        <li>Copie <b>Project URL</b> e a chave <b>anon public</b></li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<!-- ============ 2. LOGIN ============ -->
+<div id="tela-login" class="center-screen hidden">
+  <div class="card-narrow">
+    <div class="logo">🐾</div>
+    <h1>Resgate</h1>
+    <p class="sub">Cadastro e acompanhamento de animais resgatados.</p>
+    <div class="tabs">
+      <button id="tab-entrar" class="on">Entrar</button>
+      <button id="tab-criar">Criar conta</button>
+    </div>
+    <form id="form-login">
+      <div class="field">
+        <label for="log-email">E-mail</label>
+        <input id="log-email" type="email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="log-senha">Senha</label>
+        <input id="log-senha" type="password" required minlength="6" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" id="log-submit" style="width:100%" type="submit">Entrar</button>
+    </form>
+    <div id="log-msg"></div>
+    <p style="margin-top:18px;font-size:12.5px;color:var(--ink-soft)">
+      <button class="btn-ghost" id="btn-trocar-config" style="padding:0;font-size:12.5px">Trocar banco de dados</button>
+    </p>
+  </div>
+</div>
+
+<!-- ============ 3. APP ============ -->
+<div id="tela-app" class="hidden">
+  <div class="faixa-demo hidden" id="faixa-demo">
+    <span><strong>Modo demonstração.</strong> Os dados existem só nesta aba e somem ao recarregar a página.</span>
+    <button id="demo-sair">Conectar meu Supabase</button>
+  </div>
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="brand"><span class="mark">🐾</span> Resgate</div>
+      <span class="who" id="quem"></span>
+      <button class="btn" id="btn-link">Convidar</button>
+      <button class="btn" id="btn-csv">Exportar</button>
+      <button class="btn-ghost" id="btn-sair">Sair</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="stats" id="stats"></div>
+
+    <div class="abas" id="abas">
+      <button class="aba on" data-aba="animais">Animais</button>
+      <button class="aba" data-aba="castracao">
+        Castrações pendentes <span class="cont zero" id="cont-castracao">0</span>
+      </button>
+    </div>
+
+    <div id="painel-animais">
+    <div class="toolbar">
+      <div class="search"><input id="busca" type="text" placeholder="Buscar por nome, local, adotante…" autocomplete="off"></div>
+      <div class="chips" id="filtros">
+        <button class="chip on" data-status="todos">Todos</button>
+        <button class="chip" data-status="disponivel">Disponíveis</button>
+        <button class="chip" data-status="em_tratamento">Em tratamento</button>
+        <button class="chip" data-status="adotado">Adotados</button>
+      </div>
+      <button class="btn-primary" id="btn-novo">+ Novo animal</button>
+    </div>
+
+    <div id="lista"></div>
+    </div>
+
+    <div id="painel-castracao" class="hidden">
+      <p class="nota">Animais que ainda não foram castrados. Para quem já foi adotado, fale com
+        o adotante para combinar a castração — o sistema anota a data do último aviso.</p>
+      <div id="castracao-lista"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ============ 4. FICHA ============ -->
+<div id="overlay-ficha" class="overlay hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="ficha-nome"></h2>
+      <button class="btn-ghost" data-fechar="ficha">✕</button>
+    </div>
+    <div class="modal-body" id="ficha-corpo"></div>
+    <div class="modal-foot">
+      <button class="btn-danger left" id="ficha-excluir">Excluir</button>
+      <button class="btn" data-fechar="ficha">Fechar</button>
+      <button class="btn-primary" id="ficha-editar">Editar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 5. FORMULÁRIO ============ -->
+<div id="overlay-form" class="overlay hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="form-titulo">Novo animal</h2>
+      <button class="btn-ghost" data-fechar="form">✕</button>
+    </div>
+    <form id="form-animal">
+      <div class="modal-body">
+
+        <fieldset>
+          <legend>Identificação</legend>
+          <div class="field">
+            <label for="f-nome">Nome *</label>
+            <input id="f-nome" type="text" required maxlength="120">
+          </div>
+          <div class="grid3">
+            <div class="field">
+              <label for="f-especie">Espécie</label>
+              <select id="f-especie">
+                <option value="Cão">Cão</option><option value="Gato">Gato</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-sexo">Sexo</label>
+              <select id="f-sexo">
+                <option value="">Não identificado</option>
+                <option value="Fêmea">Fêmea</option><option value="Macho">Macho</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-porte">Porte</label>
+              <select id="f-porte">
+                <option value="">—</option><option value="Pequeno">Pequeno</option>
+                <option value="Médio">Médio</option><option value="Grande">Grande</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="f-idade">Idade aproximada</label>
+              <input id="f-idade" type="text" placeholder="ex.: 2 anos, filhote" maxlength="60">
+            </div>
+            <div class="field">
+              <label for="f-cor">Cor / pelagem</label>
+              <input id="f-cor" type="text" maxlength="60">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Resgate e saúde</legend>
+          <div class="grid2">
+            <div class="field">
+              <label for="f-data-resgate">Data do resgate</label>
+              <input id="f-data-resgate" type="date">
+            </div>
+            <div class="field">
+              <label for="f-local">Local do resgate</label>
+              <input id="f-local" type="text" maxlength="160">
+            </div>
+          </div>
+          <div class="grid3">
+            <div class="check"><input id="f-castrado" type="checkbox"><label for="f-castrado">Castrado</label></div>
+            <div class="check"><input id="f-vacinado" type="checkbox"><label for="f-vacinado">Vacinado</label></div>
+            <div class="field">
+              <label for="f-microchip">Microchip</label>
+              <input id="f-microchip" type="text" maxlength="60">
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-saude">Condição de saúde</label>
+            <textarea id="f-saude" maxlength="2000"></textarea>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label for="f-obs">Observações</label>
+            <textarea id="f-obs" maxlength="2000"></textarea>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Fotos</legend>
+          <input id="f-fotos" type="file" accept="image/*" multiple>
+          <div class="thumbs" id="f-fotos-atuais"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Situação</legend>
+          <div class="field" style="margin-bottom:0">
+            <label for="f-status">Status</label>
+            <select id="f-status">
+              <option value="disponivel">Disponível para adoção</option>
+              <option value="em_tratamento">Em tratamento</option>
+              <option value="adotado">Adotado</option>
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset id="bloco-adocao" class="hidden">
+          <legend>Adoção</legend>
+          <div class="grid2">
+            <div class="field">
+              <label for="f-adotante">Nome do adotante</label>
+              <input id="f-adotante" type="text" maxlength="120">
+            </div>
+            <div class="field">
+              <label for="f-adotante-contato">Telefone / e-mail</label>
+              <input id="f-adotante-contato" type="text" maxlength="120">
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label for="f-adotante-doc">Documento (CPF/RG)</label>
+              <input id="f-adotante-doc" type="text" maxlength="60">
+            </div>
+            <div class="field">
+              <label for="f-data-adocao">Data da adoção</label>
+              <input id="f-data-adocao" type="date">
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label for="f-termo">Termo de adoção assinado (PDF ou foto)</label>
+            <input id="f-termo" type="file" accept="application/pdf,image/*">
+            <p id="f-termo-atual" style="font-size:13px;color:var(--ink-soft);margin:8px 0 0"></p>
+          </div>
+        </fieldset>
+
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn" data-fechar="form">Cancelar</button>
+        <button type="submit" class="btn-primary" id="form-salvar">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ========== configuração do Supabase ==========
+     Se você preencher os dois valores abaixo, o app já nasce conectado
+     e ninguém precisa configurar nada. Deixe vazio para usar a tela de setup. */
+  var EMBUTIDO = {
+    url: "",
+    key: ""
+  };
+
+  var CHAVE_LOCAL = "resgate:config";
+  var BUCKET = "animais";
+
+  var STATUS = {
+    disponivel:    { texto: "Disponível",    classe: "b-disponivel" },
+    em_tratamento: { texto: "Em tratamento", classe: "b-tratamento" },
+    adotado:       { texto: "Adotado",       classe: "b-adotado" }
+  };
+
+  var sb = null;          // cliente supabase
+  var config = null;
+  var animais = [];       // tudo que veio do banco
+  var urls = {};          // cache path -> url assinada
+  var filtroStatus = "todos";
+  var abaAtual = "animais";
+  var termoBusca = "";
+  var editandoId = null;
+  var fotosDoForm = [];   // paths das fotos já salvas, enquanto edita
+  var termoDoForm = null; // {path, nome}
+  var fotosOriginais = [];// como estava ao abrir o formulário
+  var termoOriginal = null;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ========== utilidades ========== */
+
+  function esc(v) {
+    if (v === null || v === undefined) return "";
+    return String(v).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function dataBr(iso) {
+    if (!iso) return "";
+    var p = String(iso).slice(0, 10).split("-");
+    return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : iso;
+  }
+
+  function mostrarTela(id) {
+    ["tela-setup", "tela-login", "tela-app"].forEach(function (t) {
+      $(t).classList.toggle("hidden", t !== id);
+    });
+  }
+
+  function aviso(elId, texto, tipo) {
+    var el = $(elId);
+    if (!texto) { el.innerHTML = ""; return; }
+    el.innerHTML = '<div class="msg ' + (tipo || "err") + '">' + esc(texto) + "</div>";
+  }
+
+  var toastTimer = null;
+  function toast(texto, erro) {
+    var antigo = document.querySelector(".toast");
+    if (antigo) antigo.remove();
+    clearTimeout(toastTimer);
+    var el = document.createElement("div");
+    el.className = "toast" + (erro ? " err" : "");
+    el.textContent = texto;
+    document.body.appendChild(el);
+    toastTimer = setTimeout(function () { el.remove(); }, erro ? 6000 : 3000);
+  }
+
+  function erroLegivel(e) {
+    if (!e) return "Erro desconhecido.";
+    var m = e.message || String(e);
+    if (/Invalid login credentials/i.test(m)) return "E-mail ou senha incorretos.";
+    if (/User already registered/i.test(m)) return "Esse e-mail já tem conta. Use a aba Entrar.";
+    if (/Password should be at least/i.test(m)) return "A senha precisa ter pelo menos 6 caracteres.";
+    if (/Email not confirmed/i.test(m)) return "Confirme o e-mail antes de entrar (veja sua caixa de entrada).";
+    if (/Signups not allowed/i.test(m)) return "O cadastro de novas contas está desativado no Supabase.";
+    if (/relation .*animais.* does not exist/i.test(m)) return "A tabela 'animais' não existe. Rode o supabase-schema.sql no SQL Editor.";
+    if (/Bucket not found/i.test(m)) return "O bucket 'animais' não existe no Storage. Rode o supabase-schema.sql.";
+    if (/column .* does not exist|Could not find the .* column/i.test(m)) return "Falta uma coluna no banco. Rode o supabase-schema.sql de novo (ele atualiza o que já existe).";
+    if (/row-level security|violates row-level/i.test(m)) return "Permissão negada pelo banco. Confira as policies do supabase-schema.sql.";
+    if (/exceeded the maximum allowed size|Payload too large|entity too large/i.test(m)) return "A foto é maior que o limite do bucket. Ajuste em Storage → animais → Settings, ou reduza a imagem.";
+    if (/mime type|not supported|invalid_mime/i.test(m)) return "Esse tipo de arquivo não está liberado no bucket (Storage → animais → Settings → Allowed MIME types).";
+    if (/The resource already exists|Duplicate/i.test(m)) return "Já existe um arquivo com esse nome. Salve de novo.";
+    if (/Object not found|not_found/i.test(m)) return "O arquivo não foi encontrado no Storage.";
+    if (/JWT expired|invalid claim|Invalid Compact JWS/i.test(m)) return "Sua sessão expirou. Saia e entre de novo.";
+    if (/Failed to fetch|NetworkError/i.test(m)) return "Não consegui falar com o Supabase. Confira a URL do projeto e sua conexão.";
+    return m;
+  }
+
+  function hojeIso() {
+    var d = new Date();
+    var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+
+  function diasDesde(iso) {
+    if (!iso) return null;
+    var p = String(iso).slice(0, 10).split("-");
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    if (isNaN(d.getTime())) return null;
+    var hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    return Math.max(0, Math.round((hoje - d) / 86400000));
+  }
+
+  // transforma o contato digitado em link de WhatsApp ou e-mail
+  function canalDeContato(texto, animal) {
+    if (!texto) return null;
+    var t = String(texto).trim();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) {
+      var assunto = encodeURIComponent("Castração de " + animal.nome);
+      return { rotulo: "Enviar e-mail", href: "mailto:" + t + "?subject=" + assunto };
+    }
+    var digitos = t.replace(/\D/g, "");
+    if (digitos.length >= 10 && digitos.length <= 13) {
+      var numero = digitos.length <= 11 ? "55" + digitos : digitos;
+      var texto2 = encodeURIComponent(
+        "Oi! Aqui é do grupo de resgate. Estamos passando para combinar a castração de " +
+        animal.nome + ". Quando fica melhor para você?");
+      return { rotulo: "Chamar no WhatsApp", href: "https://wa.me/" + numero + "?text=" + texto2 };
+    }
+    return null;
+  }
+
+  /* ========== configuração ========== */
+
+  function lerConfig() {
+    var h = location.hash || "";
+    if (h.indexOf("#config=") === 0) {
+      try {
+        var bruto = atob(decodeURIComponent(h.slice(8)));
+        var partes = bruto.split("|");
+        if (partes[0] && partes[1]) {
+          localStorage.setItem(CHAVE_LOCAL, JSON.stringify({ url: partes[0], key: partes[1] }));
+        }
+      } catch (e) { /* hash inválido: ignora */ }
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+    if (EMBUTIDO.url && EMBUTIDO.key) return EMBUTIDO;
+    try {
+      var salvo = JSON.parse(localStorage.getItem(CHAVE_LOCAL) || "null");
+      if (salvo && salvo.url && salvo.key) return salvo;
+    } catch (e) { /* storage bloqueado */ }
+    return null;
+  }
+
+  function linkConvite() {
+    var base = location.origin + location.pathname;
+    if (EMBUTIDO.url && EMBUTIDO.key) return base;
+    return base + "#config=" + encodeURIComponent(btoa(config.url + "|" + config.key));
+  }
+
+  $("cfg-salvar").addEventListener("click", function () {
+    var url = $("cfg-url").value.trim().replace(/\/+$/, "");
+    var key = $("cfg-key").value.trim();
+    if (!/^https:\/\/.+/.test(url) || !key) {
+      aviso("cfg-msg", "Preencha a URL (começando com https://) e a chave anon.");
+      return;
+    }
+    try {
+      localStorage.setItem(CHAVE_LOCAL, JSON.stringify({ url: url, key: key }));
+    } catch (e) {
+      aviso("cfg-msg", "Este navegador bloqueou o armazenamento local. Libere os cookies do site.");
+      return;
+    }
+    location.reload();
+  });
+
+  $("btn-trocar-config").addEventListener("click", function () {
+    try { localStorage.removeItem(CHAVE_LOCAL); } catch (e) {}
+    location.reload();
+  });
+
+  /* ========== login ========== */
+
+  var modoLogin = "entrar";
+
+  function trocarModo(modo) {
+    modoLogin = modo;
+    $("tab-entrar").classList.toggle("on", modo === "entrar");
+    $("tab-criar").classList.toggle("on", modo === "criar");
+    $("log-submit").textContent = modo === "entrar" ? "Entrar" : "Criar conta";
+    $("log-senha").setAttribute("autocomplete", modo === "entrar" ? "current-password" : "new-password");
+    aviso("log-msg", "");
+  }
+
+  $("tab-entrar").addEventListener("click", function () { trocarModo("entrar"); });
+  $("tab-criar").addEventListener("click", function () { trocarModo("criar"); });
+
+  $("form-login").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    var email = $("log-email").value.trim();
+    var senha = $("log-senha").value;
+    $("log-submit").disabled = true;
+    aviso("log-msg", "");
+    try {
+      if (modoLogin === "entrar") {
+        var r = await sb.auth.signInWithPassword({ email: email, password: senha });
+        if (r.error) throw r.error;
+      } else {
+        var c = await sb.auth.signUp({ email: email, password: senha });
+        if (c.error) throw c.error;
+        if (!c.data.session) {
+          aviso("log-msg", "Conta criada. Confirme o e-mail que o Supabase enviou e depois entre.", "ok");
+          trocarModo("entrar");
+        }
+      }
+    } catch (e) {
+      aviso("log-msg", erroLegivel(e));
+    } finally {
+      $("log-submit").disabled = false;
+    }
+  });
+
+  $("btn-sair").addEventListener("click", async function () {
+    await sb.auth.signOut();
+  });
+
+  /* ========== dados ========== */
+
+  async function carregar() {
+    var r = await sb.from("animais").select("*").order("criado_em", { ascending: false });
+    if (r.error) throw r.error;
+    animais = r.data || [];
+    await assinarCapas();
+    render();
+  }
+
+  var avisouFalhaDeArquivo = false;
+
+  function avisarFalhaDeArquivo(texto) {
+    if (avisouFalhaDeArquivo) return;   // um aviso por sessão, não a cada foto
+    avisouFalhaDeArquivo = true;
+    toast(texto, true);
+  }
+
+  async function assinar(paths) {
+    var faltando = paths.filter(function (p) { return p && !urls[p]; });
+    if (!faltando.length) return;
+
+    var r = await sb.storage.from(BUCKET).createSignedUrls(faltando, 3600);
+    if (r.error) {
+      avisarFalhaDeArquivo("Os arquivos estão salvos, mas não consegui carregá-los: " + erroLegivel(r.error));
+      return;
+    }
+
+    var sumidos = [];
+    (r.data || []).forEach(function (item) {
+      if (!item) return;
+      if (item.signedUrl) urls[item.path] = item.signedUrl;
+      else sumidos.push(item.path);
+    });
+    if (sumidos.length) {
+      avisarFalhaDeArquivo(sumidos.length + " arquivo(s) constam no cadastro mas não estão no Storage.");
+    }
+  }
+
+  function assinarCapas() {
+    return assinar(animais.map(function (a) {
+      return (a.fotos || [])[0];
+    }).filter(Boolean));
+  }
+
+  /* ========== lista ========== */
+
+  function visiveis() {
+    var t = termoBusca.toLowerCase();
+    return animais.filter(function (a) {
+      if (filtroStatus !== "todos" && a.status !== filtroStatus) return false;
+      if (!t) return true;
+      return [a.nome, a.especie, a.cor, a.local_resgate, a.adotante_nome, a.microchip, a.observacoes]
+        .some(function (c) { return c && String(c).toLowerCase().indexOf(t) !== -1; });
+    });
+  }
+
+  function render() {
+    renderCastracao();
+
+    var total = animais.length;
+    var conta = function (s) {
+      return animais.filter(function (a) { return a.status === s; }).length;
+    };
+    $("stats").innerHTML =
+      '<div class="stat"><b>' + total + '</b><span>Resgatados</span></div>' +
+      '<div class="stat"><b>' + conta("disponivel") + '</b><span>Disponíveis</span></div>' +
+      '<div class="stat"><b>' + conta("em_tratamento") + '</b><span>Em tratamento</span></div>' +
+      '<div class="stat"><b>' + conta("adotado") + '</b><span>Adotados</span></div>';
+
+    var lista = visiveis();
+    if (!lista.length) {
+      $("lista").innerHTML = '<div class="empty"><span class="mark">🐾</span>' +
+        (total === 0
+          ? "Nenhum animal cadastrado ainda.<br>Clique em <b>+ Novo animal</b> para começar."
+          : "Nenhum animal encontrado com esses filtros.") + "</div>";
+      return;
+    }
+
+    $("lista").innerHTML = '<div class="grid-cards">' + lista.map(function (a) {
+      var st = STATUS[a.status] || STATUS.disponivel;
+      var capa = (a.fotos || [])[0];
+      var img = capa && urls[capa]
+        ? '<img src="' + esc(urls[capa]) + '" alt="' + esc(a.nome) + '" loading="lazy">'
+        : "🐾";
+      var meta = [a.especie, a.sexo, a.porte].filter(Boolean).join(" · ");
+      return '<button class="animal" data-id="' + esc(a.id) + '">' +
+        '<div class="thumb">' + img + "</div>" +
+        '<div class="animal-body">' +
+          "<h3>" + esc(a.nome) + "</h3>" +
+          '<p class="animal-meta">' + esc(meta || "Sem dados") + "</p>" +
+          '<span class="badge ' + st.classe + '">' + st.texto + "</span>" +
+        "</div></button>";
+    }).join("") + "</div>";
+  }
+
+  $("busca").addEventListener("input", function (e) {
+    termoBusca = e.target.value.trim();
+    render();
+  });
+
+  $("filtros").addEventListener("click", function (e) {
+    var chip = e.target.closest(".chip");
+    if (!chip) return;
+    filtroStatus = chip.dataset.status;
+    Array.prototype.forEach.call($("filtros").children, function (c) {
+      c.classList.toggle("on", c === chip);
+    });
+    render();
+  });
+
+  $("lista").addEventListener("click", function (e) {
+    var card = e.target.closest(".animal");
+    if (card) abrirFicha(card.dataset.id);
+  });
+
+  /* ========== castrações pendentes ========== */
+
+  function linhaCastracao(a) {
+    var st = STATUS[a.status] || STATUS.disponivel;
+    var capa = (a.fotos || [])[0];
+    var mini = capa && urls[capa] ? '<img src="' + esc(urls[capa]) + '" alt="">' : "🐾";
+
+    var meta = [a.especie, a.sexo, a.idade].filter(Boolean).join(" · ");
+    if (a.status === "adotado" && a.data_adocao) {
+      meta += (meta ? " · " : "") + "adotado em " + dataBr(a.data_adocao);
+    } else if (a.data_resgate) {
+      meta += (meta ? " · " : "") + "resgatado em " + dataBr(a.data_resgate);
+    }
+
+    var quem = "";
+    var selo = "";
+    var acoes = [];
+
+    if (a.status === "adotado") {
+      var canal = canalDeContato(a.adotante_contato, a);
+
+      if (a.adotante_nome || a.adotante_contato) {
+        quem = '<p class="quem"><strong>' + esc(a.adotante_nome || "Adotante") + "</strong>" +
+          (a.adotante_contato ? " · " + esc(a.adotante_contato) : "") + "</p>";
+      }
+      if (!canal) {
+        quem += '<p class="quem sem-contato">Sem telefone ou e-mail para contato — abra a ficha e complete.</p>';
+      }
+
+      var dias = diasDesde(a.castracao_avisado_em);
+      selo = dias === null
+        ? '<span class="selo selo-novo">Nunca avisado</span>'
+        : '<span class="selo selo-ok">Avisado ' +
+          (dias === 0 ? "hoje" : dias === 1 ? "ontem" : "há " + dias + " dias") + "</span>";
+
+      if (canal) {
+        acoes.push('<a class="btn" target="_blank" rel="noopener" href="' + esc(canal.href) + '">' +
+          canal.rotulo + "</a>");
+      }
+      acoes.push('<button class="btn" data-avisar="' + esc(a.id) + '">' +
+        (dias === null ? "Marcar como avisado" : "Avisei de novo") + "</button>");
+    }
+
+    acoes.push('<button class="btn-primary" data-castrado="' + esc(a.id) + '">Já castrado</button>');
+
+    return '<div class="castra">' +
+      '<div class="mini">' + mini + "</div>" +
+      '<div class="dados">' +
+        '<button class="nome" data-abrir="' + esc(a.id) + '">' + esc(a.nome) + "</button> " +
+        '<span class="badge ' + st.classe + '">' + st.texto + "</span>" +
+        '<p class="meta">' + esc(meta) + "</p>" + quem + selo +
+      "</div>" +
+      '<div class="acoes">' + acoes.join("") + "</div>" +
+    "</div>";
+  }
+
+  // quem nunca foi avisado vem primeiro; depois, quem foi avisado há mais tempo
+  function porUrgencia(x, y) {
+    var dx = diasDesde(x.castracao_avisado_em);
+    var dy = diasDesde(y.castracao_avisado_em);
+    if (dx === null && dy !== null) return -1;
+    if (dy === null && dx !== null) return 1;
+    if (dx !== dy) return dy - dx;
+    return String(x.data_adocao || x.data_resgate || "").localeCompare(
+           String(y.data_adocao || y.data_resgate || ""));
+  }
+
+  function renderCastracao() {
+    var pendentes = animais.filter(function (a) { return !a.castrado; });
+
+    var contador = $("cont-castracao");
+    contador.textContent = pendentes.length;
+    contador.classList.toggle("zero", pendentes.length === 0);
+
+    if (!pendentes.length) {
+      $("castracao-lista").innerHTML = '<div class="empty"><span class="mark">🎉</span>' +
+        (animais.length
+          ? "Nenhuma castração pendente. Todos os animais cadastrados já estão castrados."
+          : "Nenhum animal cadastrado ainda.") + "</div>";
+      return;
+    }
+
+    var adotados = pendentes.filter(function (a) { return a.status === "adotado"; }).sort(porUrgencia);
+    var conosco = pendentes.filter(function (a) { return a.status !== "adotado"; }).sort(porUrgencia);
+
+    var html = "";
+    if (adotados.length) {
+      html += '<div class="grupo">Com adotante — avisar sobre a castração (' + adotados.length + ")</div>" +
+        adotados.map(linhaCastracao).join("");
+    }
+    if (conosco.length) {
+      html += '<div class="grupo">Ainda sob nossos cuidados — agendar castração (' + conosco.length + ")</div>" +
+        conosco.map(linhaCastracao).join("");
+    }
+    $("castracao-lista").innerHTML = html;
+  }
+
+  $("abas").addEventListener("click", function (e) {
+    var b = e.target.closest(".aba");
+    if (!b) return;
+    abaAtual = b.dataset.aba;
+    Array.prototype.forEach.call(this.children, function (c) { c.classList.toggle("on", c === b); });
+    $("painel-animais").classList.toggle("hidden", abaAtual !== "animais");
+    $("painel-castracao").classList.toggle("hidden", abaAtual !== "castracao");
+  });
+
+  $("castracao-lista").addEventListener("click", async function (e) {
+    var ver = e.target.closest("[data-abrir]");
+    if (ver) { abrirFicha(ver.dataset.abrir); return; }
+
+    var avisar = e.target.closest("[data-avisar]");
+    var castrado = e.target.closest("[data-castrado]");
+    var alvo = avisar || castrado;
+    if (!alvo) return;
+
+    var id = avisar ? avisar.dataset.avisar : castrado.dataset.castrado;
+    alvo.disabled = true;
+    try {
+      var mudanca = avisar ? { castracao_avisado_em: hojeIso() } : { castrado: true };
+      mudanca.atualizado_em = new Date().toISOString();
+      var r = await sb.from("animais").update(mudanca).eq("id", id);
+      if (r.error) throw r.error;
+      toast(avisar ? "Anotado: adotante avisado hoje." : "Marcado como castrado.");
+      await carregar();
+    } catch (err) {
+      alvo.disabled = false;
+      toast(erroLegivel(err), true);
+    }
+  });
+
+  /* ========== ficha ========== */
+
+  var fichaAtual = null;
+
+  async function abrirFicha(id) {
+    var a = animais.find(function (x) { return x.id === id; });
+    if (!a) return;
+    fichaAtual = a;
+    $("ficha-nome").textContent = a.nome;
+    $("overlay-ficha").classList.remove("hidden");
+
+    var st = STATUS[a.status] || STATUS.disponivel;
+    var linha = function (rot, val) {
+      return val ? "<dt>" + rot + "</dt><dd>" + esc(val) + "</dd>" : "";
+    };
+
+    var html = '<p><span class="badge ' + st.classe + '">' + st.texto + "</span></p>" +
+      '<div class="sec-title" style="margin-top:16px">Identificação</div><dl class="ficha">' +
+      linha("Espécie", a.especie) + linha("Sexo", a.sexo) + linha("Porte", a.porte) +
+      linha("Idade", a.idade) + linha("Cor", a.cor) +
+      linha("Microchip", a.microchip) +
+      "<dt>Castrado</dt><dd>" + (a.castrado ? "Sim" : "Não" +
+        (a.castracao_avisado_em ? " — adotante avisado em " + dataBr(a.castracao_avisado_em) : "")) + "</dd>" +
+      "<dt>Vacinado</dt><dd>" + (a.vacinado ? "Sim" : "Não") + "</dd>" +
+      "</dl>";
+
+    if (a.data_resgate || a.local_resgate || a.condicao_saude || a.observacoes) {
+      html += '<div class="sec-title">Resgate e saúde</div><dl class="ficha">' +
+        linha("Data do resgate", dataBr(a.data_resgate)) +
+        linha("Local", a.local_resgate) +
+        linha("Saúde", a.condicao_saude) +
+        linha("Observações", a.observacoes) + "</dl>";
+    }
+
+    if (a.status === "adotado") {
+      html += '<div class="sec-title">Adoção</div><dl class="ficha">' +
+        linha("Adotante", a.adotante_nome) +
+        linha("Contato", a.adotante_contato) +
+        linha("Documento", a.adotante_documento) +
+        linha("Data da adoção", dataBr(a.data_adocao)) +
+        "<dt>Termo assinado</dt><dd>" +
+          (a.termo_path ? '<span id="ficha-termo">carregando…</span>' : "Não anexado") +
+        "</dd></dl>";
+    }
+
+    if ((a.fotos || []).length) {
+      html += '<div class="sec-title">Fotos</div><div class="galeria" id="ficha-galeria"></div>';
+    }
+
+    $("ficha-corpo").innerHTML = html;
+
+    var paths = (a.fotos || []).slice();
+    if (a.termo_path) paths.push(a.termo_path);
+    await assinar(paths);
+
+    var gal = $("ficha-galeria");
+    if (gal) {
+      gal.innerHTML = (a.fotos || []).map(function (p) {
+        return urls[p]
+          ? '<a href="' + esc(urls[p]) + '" target="_blank" rel="noopener">' +
+            '<img src="' + esc(urls[p]) + '" alt="" loading="lazy"></a>'
+          : '<div class="falhou">foto salva,<br>mas não carregou</div>';
+      }).join("");
+    }
+    var tel = $("ficha-termo");
+    if (tel) {
+      tel.outerHTML = urls[a.termo_path]
+        ? '<a href="' + esc(urls[a.termo_path]) + '" target="_blank" rel="noopener">' +
+          esc(a.termo_nome || "Abrir termo") + "</a>"
+        : "não foi possível abrir o arquivo";
+    }
+  }
+
+  $("ficha-editar").addEventListener("click", function () {
+    var a = fichaAtual;
+    fecharModais();
+    abrirForm(a);
+  });
+
+  $("ficha-excluir").addEventListener("click", async function () {
+    var a = fichaAtual;
+    if (!a) return;
+    if (!confirm('Excluir "' + a.nome + '" e todos os arquivos dele? Isso não tem volta.')) return;
+    $("ficha-excluir").disabled = true;
+    try {
+      var arquivos = (a.fotos || []).slice();
+      if (a.termo_path) arquivos.push(a.termo_path);
+      if (arquivos.length) await sb.storage.from(BUCKET).remove(arquivos);
+      var r = await sb.from("animais").delete().eq("id", a.id);
+      if (r.error) throw r.error;
+      fecharModais();
+      toast("Cadastro excluído.");
+      await carregar();
+    } catch (e) {
+      toast(erroLegivel(e), true);
+    } finally {
+      $("ficha-excluir").disabled = false;
+    }
+  });
+
+  /* ========== formulário ========== */
+
+  function fecharModais() {
+    $("overlay-ficha").classList.add("hidden");
+    $("overlay-form").classList.add("hidden");
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-fechar]");
+    if (b) fecharModais();
+    if (e.target.classList && e.target.classList.contains("overlay")) fecharModais();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") fecharModais();
+  });
+
+  function alternarBlocoAdocao() {
+    $("bloco-adocao").classList.toggle("hidden", $("f-status").value !== "adotado");
+  }
+  $("f-status").addEventListener("change", alternarBlocoAdocao);
+
+  async function abrirForm(a) {
+    editandoId = a ? a.id : null;
+    $("form-titulo").textContent = a ? "Editar " + a.nome : "Novo animal";
+    $("form-animal").reset();
+
+    $("f-nome").value = a ? a.nome || "" : "";
+    $("f-especie").value = a && a.especie ? a.especie : "Cão";
+    $("f-sexo").value = a && a.sexo ? a.sexo : "";
+    $("f-porte").value = a && a.porte ? a.porte : "";
+    $("f-idade").value = a ? a.idade || "" : "";
+    $("f-cor").value = a ? a.cor || "" : "";
+    $("f-data-resgate").value = a && a.data_resgate ? String(a.data_resgate).slice(0, 10) : "";
+    $("f-local").value = a ? a.local_resgate || "" : "";
+    $("f-castrado").checked = !!(a && a.castrado);
+    $("f-vacinado").checked = !!(a && a.vacinado);
+    $("f-microchip").value = a ? a.microchip || "" : "";
+    $("f-saude").value = a ? a.condicao_saude || "" : "";
+    $("f-obs").value = a ? a.observacoes || "" : "";
+    $("f-status").value = a && a.status ? a.status : "disponivel";
+    $("f-adotante").value = a ? a.adotante_nome || "" : "";
+    $("f-adotante-contato").value = a ? a.adotante_contato || "" : "";
+    $("f-adotante-doc").value = a ? a.adotante_documento || "" : "";
+    $("f-data-adocao").value = a && a.data_adocao ? String(a.data_adocao).slice(0, 10) : "";
+
+    fotosDoForm = a ? (a.fotos || []).slice() : [];
+    termoDoForm = a && a.termo_path ? { path: a.termo_path, nome: a.termo_nome } : null;
+    fotosOriginais = fotosDoForm.slice();
+    termoOriginal = termoDoForm ? termoDoForm.path : null;
+    $("f-termo-atual").textContent = termoDoForm
+      ? "Anexado: " + (termoDoForm.nome || "arquivo") + " (enviar outro substitui)"
+      : "";
+
+    alternarBlocoAdocao();
+    $("overlay-form").classList.remove("hidden");
+    $("f-nome").focus();
+
+    await assinar(fotosDoForm);
+    desenharMiniaturas();
+  }
+
+  function desenharMiniaturas() {
+    $("f-fotos-atuais").innerHTML = fotosDoForm.map(function (p) {
+      return urls[p]
+        ? '<figure><img src="' + esc(urls[p]) + '" alt="">' +
+          '<button type="button" data-remover="' + esc(p) + '" title="Remover foto">✕</button></figure>'
+        : "";
+    }).join("");
+  }
+
+  $("f-fotos-atuais").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-remover]");
+    if (!b) return;
+    fotosDoForm = fotosDoForm.filter(function (p) { return p !== b.dataset.remover; });
+    desenharMiniaturas();
+  });
+
+  async function enviarArquivo(file, id, pasta) {
+    var ext = (file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8);
+    var caminho = id + "/" + pasta + "/" + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2)) + "." + ext;
+    var r = await sb.storage.from(BUCKET).upload(caminho, file, {
+      contentType: file.type || "application/octet-stream",
+      upsert: false
+    });
+    if (r.error) throw r.error;
+    return caminho;
+  }
+
+  $("form-animal").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    var botao = $("form-salvar");
+    botao.disabled = true;
+    botao.textContent = "Salvando…";
+
+    var id = editandoId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+    var adotado = $("f-status").value === "adotado";
+
+    try {
+      var novasFotos = Array.prototype.slice.call($("f-fotos").files);
+      for (var i = 0; i < novasFotos.length; i++) {
+        botao.textContent = "Enviando foto " + (i + 1) + "/" + novasFotos.length + "…";
+        fotosDoForm.push(await enviarArquivo(novasFotos[i], id, "fotos"));
+      }
+
+      var arqTermo = $("f-termo").files[0];
+      if (arqTermo && adotado) {
+        botao.textContent = "Enviando termo…";
+        termoDoForm = { path: await enviarArquivo(arqTermo, id, "termo"), nome: arqTermo.name };
+      }
+
+      botao.textContent = "Salvando…";
+      var dados = {
+        nome: $("f-nome").value.trim(),
+        especie: $("f-especie").value || null,
+        sexo: $("f-sexo").value || null,
+        porte: $("f-porte").value || null,
+        idade: $("f-idade").value.trim() || null,
+        cor: $("f-cor").value.trim() || null,
+        castrado: $("f-castrado").checked,
+        vacinado: $("f-vacinado").checked,
+        microchip: $("f-microchip").value.trim() || null,
+        data_resgate: $("f-data-resgate").value || null,
+        local_resgate: $("f-local").value.trim() || null,
+        condicao_saude: $("f-saude").value.trim() || null,
+        observacoes: $("f-obs").value.trim() || null,
+        status: $("f-status").value,
+        adotante_nome: adotado ? ($("f-adotante").value.trim() || null) : null,
+        adotante_contato: adotado ? ($("f-adotante-contato").value.trim() || null) : null,
+        adotante_documento: adotado ? ($("f-adotante-doc").value.trim() || null) : null,
+        data_adocao: adotado ? ($("f-data-adocao").value || null) : null,
+        termo_path: adotado && termoDoForm ? termoDoForm.path : null,
+        termo_nome: adotado && termoDoForm ? termoDoForm.nome : null,
+        fotos: fotosDoForm,
+        atualizado_em: new Date().toISOString()
+      };
+
+      var r = editandoId
+        ? await sb.from("animais").update(dados).eq("id", id)
+        : await sb.from("animais").insert(Object.assign({ id: id }, dados));
+      if (r.error) throw r.error;
+
+      // arquivos que saíram da ficha não devem ficar ocupando espaço no storage
+      var orfaos = fotosOriginais.filter(function (p) {
+        return fotosDoForm.indexOf(p) === -1;
+      });
+      if (termoOriginal && termoOriginal !== dados.termo_path) orfaos.push(termoOriginal);
+      if (orfaos.length) {
+        try {
+          await sb.storage.from(BUCKET).remove(orfaos);
+          orfaos.forEach(function (p) { delete urls[p]; });
+        } catch (e) { /* o cadastro já foi salvo; arquivo órfão não trava o fluxo */ }
+      }
+
+      fecharModais();
+      toast(editandoId ? "Cadastro atualizado." : "Animal cadastrado.");
+      await carregar();
+    } catch (e) {
+      toast(erroLegivel(e), true);
+    } finally {
+      botao.disabled = false;
+      botao.textContent = "Salvar";
+    }
+  });
+
+  $("btn-novo").addEventListener("click", function () { abrirForm(null); });
+
+  /* ========== convite e exportação ========== */
+
+  $("btn-link").addEventListener("click", async function () {
+    if (emDemonstracao()) {
+      toast("Na demonstração não há link para compartilhar — conecte um Supabase primeiro.", true);
+      return;
+    }
+    var link = linkConvite();
+    try {
+      await navigator.clipboard.writeText(link);
+      toast("Link copiado. Quem abrir cria a própria conta e vê os mesmos animais.");
+    } catch (e) {
+      prompt("Copie o link e envie para quem vai usar:", link);
+    }
+  });
+
+  $("btn-csv").addEventListener("click", function () {
+    var colunas = ["nome", "especie", "sexo", "porte", "idade", "cor", "castrado", "vacinado",
+      "microchip", "data_resgate", "local_resgate", "condicao_saude", "observacoes", "status",
+      "adotante_nome", "adotante_contato", "adotante_documento", "data_adocao",
+      "castracao_avisado_em", "termo_nome"];
+    var celula = function (v) {
+      if (v === null || v === undefined) return "";
+      return '"' + String(v).replace(/"/g, '""') + '"';
+    };
+    var csv = "﻿" + colunas.join(";") + "\n" + animais.map(function (a) {
+      return colunas.map(function (c) { return celula(a[c]); }).join(";");
+    }).join("\n");
+
+    var url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "animais-resgatados.csv";
+    link.click();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  });
+
+  /* ========== modo demonstração ==========
+     Implementa a mesma interface do cliente Supabase, mas guardando tudo
+     em memória, para quem quer conhecer o sistema antes de instalar. */
+
+  var CHAVE_DEMO = "resgate:demo";
+
+  function emDemonstracao() {
+    try { return sessionStorage.getItem(CHAVE_DEMO) === "1"; } catch (e) { return false; }
+  }
+
+  function bancoLocal() {
+    var linhas = [];
+    var blobs = {};
+    var sessao = { user: { id: "demo", email: "modo demonstração" } };
+
+    function pronto(data) { return Promise.resolve({ data: data, error: null }); }
+
+    function Consulta(executa) { this.executa = executa; this.filtros = []; this.ordem = null; }
+    Consulta.prototype.eq = function (campo, valor) { this.filtros.push([campo, valor]); return this; };
+    Consulta.prototype.order = function (campo, opcoes) {
+      this.ordem = { campo: campo, asc: !opcoes || opcoes.ascending !== false };
+      return this;
+    };
+    Consulta.prototype.then = function (ok, erro) {
+      var self = this;
+      return Promise.resolve().then(function () { return self.executa(self.filtros, self.ordem); }).then(ok, erro);
+    };
+    function casa(linha, filtros) {
+      return filtros.every(function (f) { return linha[f[0]] === f[1]; });
+    }
+
+    return {
+      auth: {
+        getSession: function () { return pronto({ session: sessao }); },
+        onAuthStateChange: function (cb) {
+          setTimeout(function () { cb("SIGNED_IN", sessao); }, 0);
+          return { data: { subscription: { unsubscribe: function () {} } } };
+        },
+        signOut: function () { sairDaDemonstracao(); return pronto(null); }
+      },
+      from: function () {
+        return {
+          select: function () {
+            return new Consulta(function (filtros, ordem) {
+              var saida = linhas.filter(function (l) { return casa(l, filtros); });
+              if (ordem) {
+                saida = saida.slice().sort(function (a, b) {
+                  var x = a[ordem.campo], y = b[ordem.campo];
+                  return (x < y ? -1 : x > y ? 1 : 0) * (ordem.asc ? 1 : -1);
+                });
+              }
+              return { data: JSON.parse(JSON.stringify(saida)), error: null };
+            });
+          },
+          insert: function (dados) {
+            return new Consulta(function () {
+              linhas.push(Object.assign({ criado_em: new Date().toISOString() }, dados));
+              return { data: [dados], error: null };
+            });
+          },
+          update: function (dados) {
+            return new Consulta(function (filtros) {
+              linhas.forEach(function (l) { if (casa(l, filtros)) Object.assign(l, dados); });
+              return { data: null, error: null };
+            });
+          },
+          delete: function () {
+            return new Consulta(function (filtros) {
+              linhas = linhas.filter(function (l) { return !casa(l, filtros); });
+              return { data: null, error: null };
+            });
+          }
+        };
+      },
+      storage: {
+        from: function () {
+          return {
+            upload: function (caminho, file) {
+              blobs[caminho] = URL.createObjectURL(file);
+              return pronto({ path: caminho });
+            },
+            createSignedUrls: function (caminhos) {
+              return pronto(caminhos.map(function (p) {
+                return { path: p, signedUrl: blobs[p] || null, error: blobs[p] ? null : "Object not found" };
+              }));
+            },
+            remove: function (caminhos) {
+              caminhos.forEach(function (p) {
+                if (blobs[p]) { URL.revokeObjectURL(blobs[p]); delete blobs[p]; }
+              });
+              return pronto([]);
+            }
+          };
+        }
+      },
+      semear: function (exemplos) { linhas = exemplos; }
+    };
+  }
+
+  function diasAtras(n) {
+    var d = new Date();
+    d.setDate(d.getDate() - n);
+    var pad = function (x) { return (x < 10 ? "0" : "") + x; };
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+
+  // animais fictícios, só para a demonstração ter o que mostrar
+  function exemplos() {
+    var base = function (extra) {
+      return Object.assign({
+        id: "demo-" + Math.random().toString(36).slice(2, 9),
+        castrado: false, vacinado: true, fotos: [],
+        criado_em: new Date(Date.now() - Math.random() * 1e9).toISOString()
+      }, extra);
+    };
+    return [
+      base({ nome: "Mel", especie: "Cão", sexo: "Fêmea", porte: "Médio", idade: "2 anos",
+        cor: "Caramelo", data_resgate: diasAtras(94), local_resgate: "Rua das Acácias, 120",
+        condicao_saude: "Desnutrida na chegada, já recuperou o peso.",
+        status: "adotado", adotante_nome: "Joana Ribeiro", adotante_contato: "(47) 99999-1234",
+        data_adocao: diasAtras(13) }),
+      base({ nome: "Tobias", especie: "Gato", sexo: "Macho", porte: "Pequeno", idade: "1 ano",
+        cor: "Cinza rajado", data_resgate: diasAtras(160), status: "adotado",
+        adotante_nome: "Carlos Souza", adotante_contato: "carlos@exemplo.org",
+        data_adocao: diasAtras(67), castracao_avisado_em: diasAtras(21) }),
+      base({ nome: "Nina", especie: "Cão", sexo: "Fêmea", porte: "Pequeno", idade: "8 meses",
+        data_resgate: diasAtras(70), status: "adotado", adotante_nome: "Paula Lima",
+        data_adocao: diasAtras(45) }),
+      base({ nome: "Bartolomeu", especie: "Gato", sexo: "Macho", idade: "filhote",
+        data_resgate: diasAtras(14), local_resgate: "Praça Central",
+        condicao_saude: "Em tratamento de conjuntivite.", status: "em_tratamento" }),
+      base({ nome: "Flor", especie: "Cão", sexo: "Fêmea", porte: "Grande", idade: "4 anos",
+        data_resgate: diasAtras(220), status: "disponivel", castrado: true,
+        observacoes: "Convive bem com outros cães." })
+    ];
+  }
+
+  function sairDaDemonstracao() {
+    try { sessionStorage.removeItem(CHAVE_DEMO); localStorage.removeItem(CHAVE_LOCAL); } catch (e) {}
+    location.reload();
+  }
+
+  $("cfg-demo").addEventListener("click", function () {
+    try {
+      sessionStorage.setItem(CHAVE_DEMO, "1");
+    } catch (e) {
+      aviso("cfg-msg", "Este navegador bloqueou o armazenamento local. Libere os cookies do site.");
+      return;
+    }
+    location.reload();
+  });
+
+  $("demo-sair").addEventListener("click", sairDaDemonstracao);
+
+  /* ========== inicialização ========== */
+
+  config = lerConfig();
+
+  if (emDemonstracao()) {
+    sb = bancoLocal();
+    sb.semear(exemplos());
+    $("faixa-demo").classList.remove("hidden");
+    $("quem").textContent = "modo demonstração";
+    mostrarTela("tela-app");
+    carregar().catch(function (e) { toast(erroLegivel(e), true); });
+  } else if (!config) {
+    mostrarTela("tela-setup");
+  } else {
+    sb = window.supabase.createClient(config.url, config.key);
+
+    sb.auth.onAuthStateChange(async function (evento, sessao) {
+      if (sessao && sessao.user) {
+        $("quem").textContent = sessao.user.email || "";
+        mostrarTela("tela-app");
+        try {
+          await carregar();
+        } catch (e) {
+          $("lista").innerHTML = '<div class="empty"><span class="mark">⚠️</span>' +
+            esc(erroLegivel(e)) + "</div>";
+        }
+      } else {
+        animais = [];
+        urls = {};
+        fecharModais();
+        trocarModo("entrar");
+        $("log-senha").value = "";
+        mostrarTela("tela-login");
+      }
+    });
+
+    sb.auth.getSession().then(function (r) {
+      if (!r.data.session) mostrarTela("tela-login");
+    }).catch(function () {
+      mostrarTela("tela-login");
+      aviso("log-msg", "Não consegui falar com o Supabase. Confira a URL do projeto.");
+    });
+  }
+})();
+</script>
+</body>
+</html>
