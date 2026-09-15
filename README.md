@@ -165,7 +165,12 @@ deixa de servir para essa pessoa na hora.
 
 **Fotos** — quantas quiser, por animal. Dá para remover uma a uma na edição.
 
-**Situação** — Disponível para adoção · Em tratamento · Adotado.
+**Situação** — Disponível para adoção · Em tratamento · Adotado · Virou estrelinha.
+
+> *Virou estrelinha* é para os animais que faleceram. Eles somem das pendências de
+> castração — não faria sentido cobrar castração de quem se foi — e ganham um contador
+> próprio, para os números continuarem fechando com o total de resgatados. Se o animal
+> já tinha sido adotado, o adotante, a data e o termo continuam guardados na ficha.
 
 **Adoção** (aparece ao marcar *Adotado*) — nome, contato e documento do adotante,
 data da adoção e o **termo de adoção assinado** em PDF ou foto.

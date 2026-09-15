@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Resgate — Cadastro de Animais</title>
-<meta name="versao-app" content="2026-09-15 21:04">
+<meta name="versao-app" content="2026-09-15 23:38">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E">
 <style>
   /* ---------- fundamentos ---------- */
@@ -19,6 +19,7 @@
     --danger:#a33822; --danger-soft:#fbeae5;
     --amber:#8a5a10; --amber-soft:#fbf1dd;
     --blue:#2a5878; --blue-soft:#e7eff5;
+    --estrela:#5a5480; --estrela-soft:#edebf4;
     --r-sm:9px; --r:12px; --r-lg:18px; --r-xl:24px;
     --sombra-1:0 1px 2px rgba(31,29,26,.05);
     --sombra-2:0 1px 3px rgba(31,29,26,.06), 0 8px 24px -8px rgba(31,29,26,.10);
@@ -36,6 +37,7 @@
       --danger:#e6a091; --danger-soft:#3a2420;
       --amber:#d8ab61; --amber-soft:#352a17;
       --blue:#8fb8d4; --blue-soft:#1a2b38;
+      --estrela:#b3ade0; --estrela-soft:#292741;
       --sombra-1:0 1px 2px rgba(0,0,0,.3);
       --sombra-2:0 1px 3px rgba(0,0,0,.35), 0 8px 24px -8px rgba(0,0,0,.5);
       --sombra-3:0 2px 6px rgba(0,0,0,.4), 0 18px 48px -12px rgba(0,0,0,.65);
@@ -135,13 +137,14 @@
   main{max-width:1180px;margin:0 auto;padding:26px 24px 90px}
 
   /* ---------- números ---------- */
-  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:24px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:12px;margin-bottom:24px}
   .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
     padding:15px 18px;box-shadow:var(--sombra-1);position:relative;overflow:hidden}
   .stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line-strong)}
   .stat:nth-child(2)::before{background:var(--blue)}
   .stat:nth-child(3)::before{background:var(--amber)}
   .stat:nth-child(4)::before{background:var(--brand)}
+  .stat:nth-child(5)::before{background:var(--estrela)}
   .stat b{display:block;font-size:26px;line-height:1.15;letter-spacing:-.03em;font-weight:660}
   .stat span{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.07em;font-weight:620}
 
@@ -195,6 +198,7 @@
   .b-adotado{background:var(--brand-soft);color:var(--brand-forte)}
   .b-disponivel{background:var(--blue-soft);color:var(--blue)}
   .b-tratamento{background:var(--amber-soft);color:var(--amber)}
+  .b-estrelinha{background:var(--estrela-soft);color:var(--estrela)}
   .empty{text-align:center;padding:72px 24px;color:var(--ink-soft);background:var(--surface);
     border:1px dashed var(--line-strong);border-radius:var(--r-lg)}
   .empty .mark{font-size:46px;display:block;margin-bottom:14px;opacity:.6}
@@ -447,6 +451,7 @@
         <button class="chip" data-status="disponivel">Disponíveis</button>
         <button class="chip" data-status="em_tratamento">Em tratamento</button>
         <button class="chip" data-status="adotado">Adotados</button>
+        <button class="chip" data-status="estrelinha">Estrelinhas</button>
       </div>
     </div>
 
@@ -597,6 +602,7 @@
               <option value="disponivel">Disponível para adoção</option>
               <option value="em_tratamento">Em tratamento</option>
               <option value="adotado">Adotado</option>
+              <option value="estrelinha">Virou estrelinha</option>
             </select>
           </div>
         </fieldset>
@@ -663,7 +669,8 @@
   var STATUS = {
     disponivel:    { texto: "Disponível",    classe: "b-disponivel" },
     em_tratamento: { texto: "Em tratamento", classe: "b-tratamento" },
-    adotado:       { texto: "Adotado",       classe: "b-adotado" }
+    adotado:       { texto: "Adotado",       classe: "b-adotado" },
+    estrelinha:    { texto: "Estrelinha",    classe: "b-estrelinha" }
   };
 
   var sb = null;          // cliente supabase
@@ -1066,7 +1073,8 @@
       '<div class="stat"><b>' + total + '</b><span>Resgatados</span></div>' +
       '<div class="stat"><b>' + conta("disponivel") + '</b><span>Disponíveis</span></div>' +
       '<div class="stat"><b>' + conta("em_tratamento") + '</b><span>Em tratamento</span></div>' +
-      '<div class="stat"><b>' + conta("adotado") + '</b><span>Adotados</span></div>';
+      '<div class="stat"><b>' + conta("adotado") + '</b><span>Adotados</span></div>' +
+      '<div class="stat"><b>' + conta("estrelinha") + '</b><span>Estrelinhas</span></div>';
 
     var lista = visiveis();
     atualizarResumo(lista.length);
@@ -1220,7 +1228,9 @@
   }
 
   function renderCastracao() {
-    var pendentes = animais.filter(function (a) { return !a.castrado; });
+    var pendentes = animais.filter(function (a) {
+      return !a.castrado && a.status !== "estrelinha";
+    });
 
     var contador = $("cont-castracao");
     contador.textContent = pendentes.length;
@@ -1229,7 +1239,7 @@
     if (!pendentes.length) {
       $("castracao-lista").innerHTML = '<div class="empty"><span class="mark">🎉</span>' +
         (animais.length
-          ? "Nenhuma castração pendente. Todos os animais cadastrados já estão castrados."
+          ? "Nenhuma castração pendente no momento."
           : "Nenhum animal cadastrado ainda.") + "</div>";
       return;
     }
@@ -1322,7 +1332,7 @@
         linha("Observações", a.observacoes) + "</dl>";
     }
 
-    if (a.status === "adotado") {
+    if (a.adotante_nome || a.adotante_contato || a.data_adocao || a.termo_path) {
       html += '<div class="sec-title">Adoção</div><dl class="ficha">' +
         linha("Adotante", a.adotante_nome) +
         linha("Contato", a.adotante_contato) +
@@ -1406,8 +1416,15 @@
     if (e.key === "Escape") fecharModais();
   });
 
+  function temHistoricoDeAdocao() {
+    return !!($("f-adotante").value || $("f-adotante-contato").value ||
+              $("f-adotante-doc").value || $("f-data-adocao").value || termoDoForm);
+  }
+
   function alternarBlocoAdocao() {
-    $("bloco-adocao").classList.toggle("hidden", $("f-status").value !== "adotado");
+    // some para quem nunca foi adotado, mas nunca esconde um histórico existente
+    var mostrar = $("f-status").value === "adotado" || temHistoricoDeAdocao();
+    $("bloco-adocao").classList.toggle("hidden", !mostrar);
   }
   $("f-status").addEventListener("change", alternarBlocoAdocao);
 
@@ -1486,7 +1503,6 @@
     botao.textContent = "Salvando…";
 
     var id = editandoId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
-    var adotado = $("f-status").value === "adotado";
 
     try {
       var novasFotos = Array.prototype.slice.call($("f-fotos").files);
@@ -1496,7 +1512,7 @@
       }
 
       var arqTermo = $("f-termo").files[0];
-      if (arqTermo && adotado) {
+      if (arqTermo) {
         botao.textContent = "Enviando termo…";
         termoDoForm = { path: await enviarArquivo(arqTermo, id, "termo"), nome: arqTermo.name };
       }
@@ -1517,12 +1533,14 @@
         condicao_saude: $("f-saude").value.trim() || null,
         observacoes: $("f-obs").value.trim() || null,
         status: $("f-status").value,
-        adotante_nome: adotado ? ($("f-adotante").value.trim() || null) : null,
-        adotante_contato: adotado ? ($("f-adotante-contato").value.trim() || null) : null,
-        adotante_documento: adotado ? ($("f-adotante-doc").value.trim() || null) : null,
-        data_adocao: adotado ? ($("f-data-adocao").value || null) : null,
-        termo_path: adotado && termoDoForm ? termoDoForm.path : null,
-        termo_nome: adotado && termoDoForm ? termoDoForm.nome : null,
+        // o histórico de adoção não se apaga ao mudar o status: um animal
+        // que foi adotado e depois faleceu continua tendo um adotante
+        adotante_nome: $("f-adotante").value.trim() || null,
+        adotante_contato: $("f-adotante-contato").value.trim() || null,
+        adotante_documento: $("f-adotante-doc").value.trim() || null,
+        data_adocao: $("f-data-adocao").value || null,
+        termo_path: termoDoForm ? termoDoForm.path : null,
+        termo_nome: termoDoForm ? termoDoForm.nome : null,
         fotos: fotosDoForm,
         atualizado_em: new Date().toISOString()
       };
