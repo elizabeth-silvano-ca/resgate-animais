@@ -24,4 +24,4 @@ git push origin main
 echo "→ GitHub Pages: https://elizabeth-silvano-ca.github.io/resgate-animais/ (leva alguns minutos)"
 
 netlify deploy --prod --dir . --site f4249f01-7acd-4e82-a716-0effea32bf86
-echo "→ Netlify: https://resgate-animais.netlify.app (já no ar)"
+echo "→ Netlify: https://resgate-animais-frada.netlify.app (já no ar)"

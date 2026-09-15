@@ -18,7 +18,7 @@ Não tem build, não tem servidor, não tem dependência instalada — é um `in
 
 O sistema está publicado e ligado a um banco de verdade:
 
-- **Site:** https://resgate-animais.netlify.app
+- **Site:** https://resgate-animais-frada.netlify.app
 - Endereço alternativo: https://elizabeth-silvano-ca.github.io/resgate-animais/
 - **Projeto Supabase:** `resgate-animais`, organização `Resgate`, região São Paulo
 - Auto-cadastro **desligado** — contas são criadas no painel do Supabase
