@@ -1537,24 +1537,40 @@
   } else {
     sb = window.supabase.createClient(config.url, config.key);
 
-    sb.auth.onAuthStateChange(async function (evento, sessao) {
-      if (sessao && sessao.user) {
-        $("quem").textContent = sessao.user.email || "";
-        mostrarTela("tela-app");
-        try {
-          await carregar();
-        } catch (e) {
-          $("lista").innerHTML = '<div class="empty"><span class="mark">⚠️</span>' +
-            esc(erroLegivel(e)) + "</div>";
-        }
-      } else {
+    var usuarioAtual = null;
+
+    async function aplicarSessao(sessao) {
+      var id = sessao && sessao.user ? sessao.user.id : null;
+
+      if (!id) {
+        usuarioAtual = null;
         animais = [];
         urls = {};
         fecharModais();
         aviso("log-msg", "");
         $("log-senha").value = "";
         mostrarTela("tela-login");
+        return;
       }
+
+      $("quem").textContent = sessao.user.email || "";
+      mostrarTela("tela-app");
+      if (id === usuarioAtual) return;   // só renovou o token: a lista já está carregada
+      usuarioAtual = id;
+
+      try {
+        await carregar();
+      } catch (e) {
+        var falha = '<div class="empty"><span class="mark">⚠️</span>' + esc(erroLegivel(e)) + "</div>";
+        $("lista").innerHTML = falha;
+        $("castracao-lista").innerHTML = falha;
+      }
+    }
+
+    // O cliente do Supabase mantém um bloqueio enquanto este callback executa:
+    // chamar o banco aqui dentro trava a página ao abrir com sessão salva.
+    sb.auth.onAuthStateChange(function (evento, sessao) {
+      setTimeout(function () { aplicarSessao(sessao); }, 0);
     });
 
     sb.auth.getSession().then(function (r) {
