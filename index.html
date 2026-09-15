@@ -53,9 +53,8 @@
     border-radius:16px;padding:28px;box-shadow:var(--shadow)}
   .card-narrow .logo{font-size:30px;margin-bottom:6px}
   .card-narrow p.sub{margin:6px 0 22px;color:var(--ink-soft);font-size:14px}
-  .tabs{display:flex;gap:4px;background:#efeee8;padding:4px;border-radius:10px;margin-bottom:20px}
-  .tabs button{flex:1;background:transparent;color:var(--ink-soft);padding:7px;font-size:14px;font-weight:600}
-  .tabs button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.07)}
+  .elo{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;
+    font-weight:600}
   .msg{margin-top:14px;padding:10px 12px;border-radius:9px;font-size:13.5px;line-height:1.45}
   .msg.err{background:var(--danger-soft);color:var(--danger)}
   .msg.ok{background:var(--brand-soft);color:var(--brand-ink)}
@@ -267,10 +266,12 @@
     <div class="logo">🐾</div>
     <h1>Resgate</h1>
     <p class="sub">Cadastro e acompanhamento de animais resgatados.</p>
-    <div class="tabs">
-      <button id="tab-entrar" class="on">Entrar</button>
-      <button id="tab-criar">Criar conta</button>
+    <div class="msg err hidden" id="login-aviso" style="margin:0 0 20px">
+      Este sistema ainda não está ligado a um banco de dados.
+      <button class="elo" id="ir-configurar">Configurar a conexão</button> ou
+      <button class="elo" id="ir-demo">ver a demonstração</button>.
     </div>
+
     <form id="form-login">
       <div class="field">
         <label for="log-email">E-mail</label>
@@ -278,14 +279,13 @@
       </div>
       <div class="field">
         <label for="log-senha">Senha</label>
-        <input id="log-senha" type="password" required minlength="6" autocomplete="current-password">
+        <input id="log-senha" type="password" required autocomplete="current-password">
       </div>
       <button class="btn-primary" id="log-submit" style="width:100%" type="submit">Entrar</button>
     </form>
     <div id="log-msg"></div>
-    <p style="margin-top:18px;font-size:12.5px;color:var(--ink-soft)">
-      <button class="btn-ghost" id="btn-trocar-config" style="padding:0;font-size:12.5px">Trocar banco de dados</button>
-    </p>
+    <p style="margin:20px 0 0;font-size:12.5px;color:var(--ink-soft);text-align:center;line-height:1.5">
+      Ainda não tem acesso? Peça sua conta a quem administra o sistema.</p>
   </div>
 </div>
 
@@ -571,10 +571,8 @@
     if (!e) return "Erro desconhecido.";
     var m = e.message || String(e);
     if (/Invalid login credentials/i.test(m)) return "E-mail ou senha incorretos.";
-    if (/User already registered/i.test(m)) return "Esse e-mail já tem conta. Use a aba Entrar.";
-    if (/Password should be at least/i.test(m)) return "A senha precisa ter pelo menos 6 caracteres.";
+    if (/User not found|User already registered/i.test(m)) return "Esse e-mail não tem conta neste sistema. Peça a quem administra para criar.";
     if (/Email not confirmed/i.test(m)) return "Confirme o e-mail antes de entrar (veja sua caixa de entrada).";
-    if (/Signups not allowed/i.test(m)) return "O cadastro de novas contas está desativado no Supabase.";
     if (/relation .*animais.* does not exist/i.test(m)) return "A tabela 'animais' não existe. Rode o supabase-schema.sql no SQL Editor.";
     if (/Bucket not found/i.test(m)) return "O bucket 'animais' não existe no Storage. Rode o supabase-schema.sql.";
     if (/column .* does not exist|Could not find the .* column/i.test(m)) return "Falta uma coluna no banco. Rode o supabase-schema.sql de novo (ele atualiza o que já existe).";
@@ -651,6 +649,10 @@
     return base + "#config=" + encodeURIComponent(btoa(config.url + "|" + config.key));
   }
 
+  function limparHash() {
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  }
+
   $("cfg-salvar").addEventListener("click", function () {
     var url = $("cfg-url").value.trim().replace(/\/+$/, "");
     var key = $("cfg-key").value.trim();
@@ -664,48 +666,36 @@
       aviso("cfg-msg", "Este navegador bloqueou o armazenamento local. Libere os cookies do site.");
       return;
     }
+    limparHash();
     location.reload();
   });
 
-  $("btn-trocar-config").addEventListener("click", function () {
-    try { localStorage.removeItem(CHAVE_LOCAL); } catch (e) {}
-    location.reload();
+  /* ========== login ==========
+     Não há auto-cadastro: as contas são criadas por quem administra,
+     no painel do Supabase (Authentication → Users → Add user). */
+
+  $("ir-configurar").addEventListener("click", function () {
+    mostrarTela("tela-setup");
   });
 
-  /* ========== login ========== */
-
-  var modoLogin = "entrar";
-
-  function trocarModo(modo) {
-    modoLogin = modo;
-    $("tab-entrar").classList.toggle("on", modo === "entrar");
-    $("tab-criar").classList.toggle("on", modo === "criar");
-    $("log-submit").textContent = modo === "entrar" ? "Entrar" : "Criar conta";
-    $("log-senha").setAttribute("autocomplete", modo === "entrar" ? "current-password" : "new-password");
-    aviso("log-msg", "");
-  }
-
-  $("tab-entrar").addEventListener("click", function () { trocarModo("entrar"); });
-  $("tab-criar").addEventListener("click", function () { trocarModo("criar"); });
+  $("ir-demo").addEventListener("click", function () {
+    $("cfg-demo").click();
+  });
 
   $("form-login").addEventListener("submit", async function (ev) {
     ev.preventDefault();
-    var email = $("log-email").value.trim();
-    var senha = $("log-senha").value;
+    if (!sb) {
+      aviso("log-msg", "Sem banco de dados configurado, não há como entrar.");
+      return;
+    }
     $("log-submit").disabled = true;
     aviso("log-msg", "");
     try {
-      if (modoLogin === "entrar") {
-        var r = await sb.auth.signInWithPassword({ email: email, password: senha });
-        if (r.error) throw r.error;
-      } else {
-        var c = await sb.auth.signUp({ email: email, password: senha });
-        if (c.error) throw c.error;
-        if (!c.data.session) {
-          aviso("log-msg", "Conta criada. Confirme o e-mail que o Supabase enviou e depois entre.", "ok");
-          trocarModo("entrar");
-        }
-      }
+      var r = await sb.auth.signInWithPassword({
+        email: $("log-email").value.trim(),
+        password: $("log-senha").value
+      });
+      if (r.error) throw r.error;
     } catch (e) {
       aviso("log-msg", erroLegivel(e));
     } finally {
@@ -1432,8 +1422,15 @@
     $("quem").textContent = "modo demonstração";
     mostrarTela("tela-app");
     carregar().catch(function (e) { toast(erroLegivel(e), true); });
-  } else if (!config) {
+  } else if (location.hash === "#configurar") {
     mostrarTela("tela-setup");
+  } else if (!config) {
+    // sem banco ligado, a porta de entrada continua sendo o login — só que avisando
+    $("login-aviso").classList.remove("hidden");
+    $("log-email").disabled = true;
+    $("log-senha").disabled = true;
+    $("log-submit").disabled = true;
+    mostrarTela("tela-login");
   } else {
     sb = window.supabase.createClient(config.url, config.key);
 
@@ -1451,7 +1448,7 @@
         animais = [];
         urls = {};
         fecharModais();
-        trocarModo("entrar");
+        aviso("log-msg", "");
         $("log-senha").value = "";
         mostrarTela("tela-login");
       }

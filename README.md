@@ -16,8 +16,8 @@ Não tem build, não tem servidor, não tem dependência instalada — é um `in
 
 ## Só quer ver como é? (sem instalar nada)
 
-Dê um duplo clique no **`index.html`** e, na tela que aparece, clique em
-**Ver demonstração sem instalar nada**.
+Abra o sistema. A tela de login avisa que ainda não há banco ligado e oferece
+o link **ver a demonstração** — clique nele.
 
 O sistema abre com cinco animais de exemplo e funciona inteiro: cadastrar, anexar
 fotos e termo, filtrar, buscar, o painel de castrações, exportar. Tudo roda dentro
@@ -56,15 +56,22 @@ e dados compartilhados entre as pessoas.
 Isso cria a tabela `animais`, as regras de acesso e o bucket privado `animais`
 (onde ficam as fotos e os termos).
 
-### 3. Facilitar o login (recomendado)
+### 3. Fechar o auto-cadastro e criar as contas
 
-Por padrão o Supabase exige confirmação de e-mail, e o envio grátis é limitado
-a poucos e-mails por hora — o que trava na hora de cadastrar várias pessoas.
+O sistema **não tem tela de criar conta**: quem administra cria cada usuário
+no painel do Supabase. Isso evita que qualquer pessoa com o link entre sozinha.
 
-1. **Authentication** → **Sign In / Providers** → **Email**.
-2. Desligue **Confirm email** e salve.
+1. **Authentication** → **Sign In / Providers** → **Email** →
+   desligue **Allow new users to sign up** e salve.
+2. **Authentication** → **Users** → **Add user** → **Create new user**.
+3. Preencha e-mail e senha e **marque Auto Confirm User** (senão a pessoa não
+   consegue entrar até confirmar o e-mail, e o envio grátis é limitado a poucos
+   e-mails por hora).
+4. Repita para cada pessoa da equipe. Para tirar o acesso de alguém:
+   **Users** → menu do usuário → **Delete user**.
 
-Assim quem criar conta já entra direto.
+Passe a senha para a pessoa por um canal seguro; ela usa o e-mail e a senha
+direto na tela de login.
 
 ### 4. Pegar as chaves
 
@@ -95,29 +102,31 @@ gh api -X POST repos/:owner/resgate-animais/pages -f build_type=legacy \
 
 O site fica em `https://SEU-USUARIO.github.io/resgate-animais/` em alguns minutos.
 
-### 6. Conectar e convidar
+### 6. Conectar e dar acesso ao time
 
-1. Abra o site publicado. Na primeira vez ele pede a **URL** e a **chave anon** — cole e conecte.
-2. Crie sua conta na aba **Criar conta**.
-3. Clique em **Convidar** no topo: isso copia um link já configurado.
-   Quem abrir esse link não precisa configurar nada — só criar a própria conta,
-   e já vê os mesmos animais que você.
+1. Abra o site publicado. Ele abre no **login**, avisando que falta o banco.
+   Clique em **Configurar a conexão**, cole a **URL** e a **chave anon**, e conecte.
+   (Para voltar a essa tela depois, acrescente `#configurar` no fim do endereço.)
+2. Entre com a conta que você criou no passo 3.
+3. Para cada pessoa: crie a conta no painel do Supabase (passo 3) e mande o link
+   do botão **Convidar** — ele já vem com a conexão configurada, então a pessoa
+   só precisa digitar e-mail e senha.
 
-> **Dica:** se preferir que o site já nasça conectado (sem tela de configuração
-> para ninguém), abra o `index.html`, ache `var EMBUTIDO = {` no início do script
-> e preencha `url` e `key`. Depois publique de novo.
+> **Deixe o site já nascendo conectado:** abra o `index.html`, ache
+> `var EMBUTIDO = {` no início do script e preencha `url` e `key`. Depois publique
+> de novo. Aí ninguém mais vê tela de configuração — só o login.
 
 ---
 
 ## Controlando quem entra
 
-Qualquer pessoa com o link consegue criar conta. Depois que o seu time todo se
-cadastrar, feche a porta:
+Não existe auto-cadastro: a tela inicial é só **login**, com e-mail e senha.
+Toda conta nasce no painel do Supabase, pelas mãos de quem administra
+(**Authentication → Users → Add user**, com *Auto Confirm User* marcado).
 
-**Authentication** → **Sign In / Providers** → **Email** → desligue
-**Allow new users to sign up**.
-
-Para remover alguém: **Authentication** → **Users** → menu do usuário → **Delete user**.
+Ou seja: mesmo que o link do sistema vaze, ninguém entra sem uma conta que
+você tenha criado. Para tirar o acesso de alguém, apague o usuário — o link
+deixa de servir para essa pessoa na hora.
 
 ---
 
@@ -197,7 +206,8 @@ Usar o sistema uma vez por semana já evita a pausa.
 | "A tabela 'animais' não existe" | O SQL não rodou. Refaça o passo 2. |
 | "O bucket 'animais' não existe" | Idem — o passo 2 cria as duas coisas juntas. |
 | "Falta uma coluna no banco" | Rode o `supabase-schema.sql` de novo; ele atualiza tabelas que já existem sem apagar dados. |
-| "Confirme o e-mail antes de entrar" | Faça o passo 3, ou confirme pelo e-mail recebido. |
-| "O cadastro de novas contas está desativado" | Reative em Authentication → Providers → Email. |
+| "Confirme o e-mail antes de entrar" | Ao criar o usuário no Supabase, marque **Auto Confirm User**. |
+| "Esse e-mail não tem conta neste sistema" | A conta ainda não foi criada no painel (passo 3). |
+| Quero abrir a tela de configuração de novo | Acrescente `#configurar` no fim do endereço do site. |
 | "Não consegui falar com o Supabase" | URL errada, ou o projeto está pausado (veja acima). |
 | Tela de configuração voltou | O navegador limpou o armazenamento. Use o link de **Convidar** de novo. |
