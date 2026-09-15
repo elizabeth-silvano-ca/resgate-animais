@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Resgate — Cadastro de Animais</title>
-<meta name="versao-app" content="2026-09-15 18:26">
+<meta name="versao-app" content="2026-09-15 18:30">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E">
 <style>
   /* ---------- fundamentos ---------- */
@@ -126,7 +126,7 @@
   /* ---------- topo ---------- */
   .topo{position:sticky;top:0;z-index:20}
   .topbar{background:color-mix(in srgb, var(--surface) 92%, transparent);border-bottom:1px solid var(--line);
-    backdrop-filter:saturate(1.6) blur(10px)}
+    backdrop-filter:saturate(1.6) blur(10px);position:relative}
   .topbar-in{max-width:1180px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .brand{display:flex;align-items:center;gap:10px;font-weight:680;font-size:17px;margin-right:auto;
     letter-spacing:-.015em}
@@ -271,6 +271,23 @@
     box-shadow:var(--sombra-3);max-width:90vw;animation:subir 220ms cubic-bezier(.4,0,.2,1)}
   .toast.err{background:var(--danger);color:#fff}
 
+  /* ---------- estado de carregamento ---------- */
+  .brilho{background:var(--surface-3);position:relative;overflow:hidden}
+  .brilho::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+    background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--surface) 70%,transparent),transparent);
+    animation:brilhar 1.4s infinite}
+  @keyframes brilhar{100%{transform:translateX(100%)}}
+  .esqueleto{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+    overflow:hidden;box-shadow:var(--sombra-2)}
+  .esqueleto-corpo{padding:14px 16px 16px}
+  .esqueleto-linha{display:flex;gap:16px;align-items:flex-start;background:var(--surface);
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;margin-bottom:12px;
+    box-shadow:var(--sombra-2)}
+  .barra-carregando{position:absolute;left:0;right:0;bottom:-1px;height:2px;overflow:hidden}
+  .barra-carregando::after{content:"";position:absolute;top:0;bottom:0;width:35%;
+    background:var(--brand);animation:deslizar 1.1s cubic-bezier(.4,0,.2,1) infinite}
+  @keyframes deslizar{0%{left:-35%}100%{left:100%}}
+
   /* no escuro o verde clareia: texto escuro contrasta muito melhor que branco */
   @media (prefers-color-scheme: dark){
     .btn-primary,.btn-primary:hover,.chip.on,.chip.on:hover{color:#0d1714}
@@ -393,6 +410,7 @@
       <button class="btn-primary" id="btn-novo">+ Novo animal</button>
       <button class="btn-ghost" id="btn-sair">Sair</button>
     </div>
+    <div class="barra-carregando hidden" id="barra-carregando"></div>
   </header>
   </div>
 
@@ -801,12 +819,66 @@
 
   /* ========== dados ========== */
 
+  var jaCarregou = false;
+
+  function bloco(estilo) { return '<div class="brilho" style="' + estilo + '"></div>'; }
+
+  // Na primeira carga não há nada na tela: mostra o desenho do que vem.
+  // Nas seguintes a lista já está lá, então uma barra fina basta e não pisca.
+  function mostrarCarregando() {
+    $("barra-carregando").classList.remove("hidden");
+    if (jaCarregou) return;
+
+    var cartoes = "";
+    for (var i = 0; i < 4; i++) {
+      cartoes += '<div class="esqueleto">' +
+        bloco("aspect-ratio:4/3") +
+        '<div class="esqueleto-corpo">' +
+          bloco("height:15px;width:58%;border-radius:6px") +
+          bloco("height:12px;width:80%;margin-top:10px;border-radius:6px") +
+          bloco("height:21px;width:40%;margin-top:12px;border-radius:999px") +
+        "</div></div>";
+    }
+    $("lista").innerHTML = '<div class="grid-cards">' + cartoes + "</div>";
+
+    var numeros = "";
+    for (var j = 0; j < 4; j++) {
+      numeros += '<div class="stat">' +
+        bloco("height:26px;width:42%;border-radius:6px") +
+        bloco("height:11px;width:78%;margin-top:8px;border-radius:6px") + "</div>";
+    }
+    $("stats").innerHTML = numeros;
+
+    var linhas = "";
+    for (var k = 0; k < 3; k++) {
+      linhas += '<div class="esqueleto-linha">' +
+        bloco("width:66px;height:66px;border-radius:var(--r);flex:none") +
+        '<div style="flex:1">' +
+          bloco("height:16px;width:36%;border-radius:6px") +
+          bloco("height:12px;width:62%;margin-top:9px;border-radius:6px") +
+          bloco("height:12px;width:48%;margin-top:9px;border-radius:6px") +
+        "</div>" +
+        bloco("width:176px;height:76px;border-radius:var(--r-sm);flex:none") + "</div>";
+    }
+    $("castracao-lista").innerHTML = linhas;
+  }
+
+  function esconderCarregando() {
+    $("barra-carregando").classList.add("hidden");
+  }
+
   async function carregar() {
-    var r = await sb.from("animais").select("*").order("criado_em", { ascending: false });
-    if (r.error) throw r.error;
-    animais = r.data || [];
-    await assinarCapas();
-    render();
+    mostrarCarregando();
+    try {
+      var r = await sb.from("animais").select("*").order("criado_em", { ascending: false });
+      if (r.error) throw r.error;
+      animais = r.data || [];
+      await assinarCapas();
+      jaCarregou = true;
+      render();
+    } finally {
+      esconderCarregando();
+    }
   }
 
   var avisouFalhaDeArquivo = false;
