@@ -58,6 +58,7 @@
   .msg{margin-top:14px;padding:10px 12px;border-radius:9px;font-size:13.5px;line-height:1.45}
   .msg.err{background:var(--danger-soft);color:var(--danger)}
   .msg.ok{background:var(--brand-soft);color:var(--brand-ink)}
+  .msg.aviso{background:var(--amber-soft);color:var(--amber)}
   code.inline{background:#efeee8;padding:1px 5px;border-radius:4px;font-size:12.5px}
 
   /* ---------- app ---------- */
@@ -266,10 +267,10 @@
     <div class="logo">🐾</div>
     <h1>Resgate</h1>
     <p class="sub">Cadastro e acompanhamento de animais resgatados.</p>
-    <div class="msg err hidden" id="login-aviso" style="margin:0 0 20px">
-      Este sistema ainda não está ligado a um banco de dados.
-      <button class="elo" id="ir-configurar">Configurar a conexão</button> ou
-      <button class="elo" id="ir-demo">ver a demonstração</button>.
+    <div class="msg aviso hidden" id="login-aviso" style="margin:0 0 20px">
+      Este sistema ainda não está ligado a um banco de dados.<br>
+      <button class="elo" id="ir-configurar">Configurar a conexão</button>
+      ou <button class="elo" id="ir-demo">ver a demonstração</button>
     </div>
 
     <form id="form-login">
