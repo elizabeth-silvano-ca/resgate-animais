@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Resgate — Cadastro de Animais</title>
-<meta name="versao-app" content="2026-09-15 18:21">
+<meta name="versao-app" content="2026-09-15 18:26">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E">
 <style>
   /* ---------- fundamentos ---------- */
@@ -1323,22 +1323,50 @@
   /* ========== exportação ========== */
 
   $("btn-csv").addEventListener("click", function () {
-    var colunas = ["nome", "especie", "sexo", "porte", "idade", "cor", "castrado", "vacinado",
-      "microchip", "data_resgate", "local_resgate", "condicao_saude", "observacoes", "status",
-      "adotante_nome", "adotante_contato", "adotante_documento", "data_adocao",
-      "castracao_avisado_em", "termo_nome"];
+    var simNao = function (v) { return v ? "Sim" : "Não"; };
+    var situacao = function (v) { return (STATUS[v] || {}).texto || v || ""; };
+
+    // rótulo na planilha, campo no banco e, quando precisa, como apresentar o valor
+    var colunas = [
+      ["Nome", "nome"],
+      ["Espécie", "especie"],
+      ["Sexo", "sexo"],
+      ["Porte", "porte"],
+      ["Idade", "idade"],
+      ["Cor / pelagem", "cor"],
+      ["Castrado", "castrado", simNao],
+      ["Vacinado", "vacinado", simNao],
+      ["Microchip", "microchip"],
+      ["Data do resgate", "data_resgate", dataBr],
+      ["Local do resgate", "local_resgate"],
+      ["Condição de saúde", "condicao_saude"],
+      ["Observações", "observacoes"],
+      ["Situação", "status", situacao],
+      ["Adotante", "adotante_nome"],
+      ["Contato do adotante", "adotante_contato"],
+      ["Documento do adotante", "adotante_documento"],
+      ["Data da adoção", "data_adocao", dataBr],
+      ["Adotante avisado da castração em", "castracao_avisado_em", dataBr],
+      ["Termo de adoção", "termo_nome"]
+    ];
+
     var celula = function (v) {
-      if (v === null || v === undefined) return "";
+      if (v === null || v === undefined) v = "";
       return '"' + String(v).replace(/"/g, '""') + '"';
     };
-    var csv = "﻿" + colunas.join(";") + "\n" + animais.map(function (a) {
-      return colunas.map(function (c) { return celula(a[c]); }).join(";");
-    }).join("\n");
 
+    var linhas = [colunas.map(function (c) { return celula(c[0]); }).join(";")];
+    animais.forEach(function (a) {
+      linhas.push(colunas.map(function (c) {
+        return celula(c[2] ? c[2](a[c[1]]) : a[c[1]]);
+      }).join(";"));
+    });
+
+    var csv = "\uFEFF" + linhas.join("\r\n");
     var url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     var link = document.createElement("a");
     link.href = url;
-    link.download = "animais-resgatados.csv";
+    link.download = "animais-resgatados-" + hojeIso() + ".csv";
     link.click();
     setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
   });
