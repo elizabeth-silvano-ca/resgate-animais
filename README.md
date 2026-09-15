@@ -18,12 +18,26 @@ Não tem build, não tem servidor, não tem dependência instalada — é um `in
 
 O sistema está publicado e ligado a um banco de verdade:
 
-- **Site:** https://elizabeth-silvano-ca.github.io/resgate-animais/
+- **Site:** https://resgate-animais.netlify.app
+- Endereço alternativo: https://elizabeth-silvano-ca.github.io/resgate-animais/
 - **Projeto Supabase:** `resgate-animais`, organização `Resgate`, região São Paulo
 - Auto-cadastro **desligado** — contas são criadas no painel do Supabase
 
 O passo a passo abaixo fica como referência: para refazer a instalação do zero,
 migrar para outra conta ou entender o que foi configurado.
+
+---
+
+## Publicando uma mudança
+
+```bash
+./publicar.sh "fix: descrição do que mudou"
+```
+
+Envia para o GitHub e para o Netlify, e carimba a versão. O carimbo é o que faz
+quem está com o sistema aberto receber o aviso **"Há uma versão mais nova"**,
+com um botão para recarregar — sem isso o navegador pode ficar minutos com a
+versão antiga em cache.
 
 ---
 
@@ -46,6 +60,7 @@ e dados compartilhados entre as pessoas.
 
 - **`index.html`** — o sistema inteiro (interface + lógica).
 - **`supabase-schema.sql`** — cria a tabela, as permissões e o bucket de arquivos.
+- **`publicar.sh`** — publica nos dois endereços e carimba a versão.
 - **`README.md`** — este passo a passo.
 
 ---
