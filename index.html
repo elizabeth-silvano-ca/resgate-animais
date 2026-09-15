@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Resgate — Cadastro de Animais</title>
-<meta name="versao-app" content="2026-09-15 18:36">
+<meta name="versao-app" content="2026-09-15 18:39">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E">
 <style>
   /* ---------- fundamentos ---------- */
@@ -277,6 +277,8 @@
     background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--surface) 70%,transparent),transparent);
     animation:brilhar 1.4s infinite}
   @keyframes brilhar{100%{transform:translateX(100%)}}
+  img[data-foto]{opacity:0;transition:opacity 300ms ease}
+  img[data-foto].pronta{opacity:1}
   .esqueleto{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
     overflow:hidden;box-shadow:var(--sombra-2)}
   .esqueleto-corpo{padding:14px 16px 16px}
@@ -910,6 +912,27 @@
     }
   }
 
+  // As fotos vêm do storage uma a uma. Até cada uma chegar, o espaço dela
+  // fica com o mesmo brilho do esqueleto, em vez de aparecer de supetão.
+  function prepararFotos(raiz) {
+    if (!raiz) return;
+    Array.prototype.forEach.call(raiz.querySelectorAll("img[data-foto]"), function (img) {
+      var caixa = img.parentElement;
+      var pronta = function () {
+        caixa.classList.remove("brilho");
+        img.classList.add("pronta");
+      };
+      if (img.complete && img.naturalWidth > 0) { pronta(); return; }
+      caixa.classList.add("brilho");
+      img.addEventListener("load", pronta);
+      img.addEventListener("error", function () {
+        caixa.classList.remove("brilho");
+        img.remove();
+        if (!caixa.textContent.trim()) caixa.textContent = "🐾";
+      });
+    });
+  }
+
   function assinarCapas() {
     return assinar(animais.map(function (a) {
       return (a.fotos || [])[0];
@@ -954,7 +977,7 @@
       var st = STATUS[a.status] || STATUS.disponivel;
       var capa = (a.fotos || [])[0];
       var img = capa && urls[capa]
-        ? '<img src="' + esc(urls[capa]) + '" alt="' + esc(a.nome) + '" loading="lazy">'
+        ? '<img data-foto src="' + esc(urls[capa]) + '" alt="' + esc(a.nome) + '" loading="lazy">'
         : "🐾";
       var meta = [a.especie, a.sexo, a.porte].filter(Boolean).join(" · ");
       return '<button class="animal" data-id="' + esc(a.id) + '">' +
@@ -965,6 +988,8 @@
           '<span class="badge ' + st.classe + '">' + st.texto + "</span>" +
         "</div></button>";
     }).join("") + "</div>";
+
+    prepararFotos($("lista"));
   }
 
   $("busca").addEventListener("input", function (e) {
@@ -992,7 +1017,7 @@
   function linhaCastracao(a) {
     var st = STATUS[a.status] || STATUS.disponivel;
     var capa = (a.fotos || [])[0];
-    var mini = capa && urls[capa] ? '<img src="' + esc(urls[capa]) + '" alt="">' : "🐾";
+    var mini = capa && urls[capa] ? '<img data-foto src="' + esc(urls[capa]) + '" alt="">' : "🐾";
 
     var meta = [a.especie, a.sexo, a.idade].filter(Boolean).join(" · ");
     if (a.status === "adotado" && a.data_adocao) {
@@ -1082,6 +1107,7 @@
         conosco.map(linhaCastracao).join("");
     }
     $("castracao-lista").innerHTML = html;
+    prepararFotos($("castracao-lista"));
   }
 
   function mostrarAba(qual) {
@@ -1182,9 +1208,10 @@
       gal.innerHTML = (a.fotos || []).map(function (p) {
         return urls[p]
           ? '<a href="' + esc(urls[p]) + '" target="_blank" rel="noopener">' +
-            '<img src="' + esc(urls[p]) + '" alt="" loading="lazy"></a>'
+            '<img data-foto src="' + esc(urls[p]) + '" alt="" loading="lazy"></a>'
           : '<div class="falhou">foto salva,<br>mas não carregou</div>';
       }).join("");
+      prepararFotos(gal);
     }
     var tel = $("ficha-termo");
     if (tel) {
@@ -1287,10 +1314,11 @@
   function desenharMiniaturas() {
     $("f-fotos-atuais").innerHTML = fotosDoForm.map(function (p) {
       return urls[p]
-        ? '<figure><img src="' + esc(urls[p]) + '" alt="">' +
+        ? '<figure><img data-foto src="' + esc(urls[p]) + '" alt="">' +
           '<button type="button" data-remover="' + esc(p) + '" title="Remover foto">✕</button></figure>'
         : "";
     }).join("");
+    prepararFotos($("f-fotos-atuais"));
   }
 
   $("f-fotos-atuais").addEventListener("click", function (e) {
