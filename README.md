@@ -29,8 +29,8 @@ migrar para outra conta ou entender o que foi configurado.
 
 ## Só quer ver como é? (sem instalar nada)
 
-Abra o sistema. A tela de login avisa que ainda não há banco ligado e oferece
-o link **ver a demonstração** — clique nele.
+Acrescente **`#demo`** no fim do endereço do site. (Numa instalação ainda sem
+banco, a própria tela de login oferece o link **ver a demonstração**.)
 
 O sistema abre com cinco animais de exemplo e funciona inteiro: cadastrar, anexar
 fotos e termo, filtrar, buscar, o painel de castrações, exportar. Tudo roda dentro
@@ -163,8 +163,10 @@ e **Exportar** (CSV que abre no Excel ou Google Planilhas).
 
 ## Painel de castrações pendentes
 
-A aba **Castrações pendentes** junta todo animal que ainda não está marcado como
-castrado e mostra quantos são no contador ao lado do nome da aba.
+A aba **Castrações pendentes** é a primeira do sistema e já abre por padrão: junta
+todo animal que ainda não está marcado como castrado e mostra quantos são no
+contador ao lado do nome da aba. O botão **+ Novo animal** fica no topo, disponível
+em qualquer aba; ao salvar, o sistema leva você para a lista de animais.
 
 A lista vem separada em dois grupos:
 
