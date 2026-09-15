@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Resgate — Cadastro de Animais</title>
-<meta name="versao-app" content="2026-09-15 19:50">
+<meta name="versao-app" content="2026-09-15 21:04">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E">
 <style>
   /* ---------- fundamentos ---------- */
@@ -171,6 +171,8 @@
   .filtros-data .ate{color:var(--ink-soft);font-size:13.5px}
   .filtros-data .rotulo{font-size:11.5px;font-weight:620;color:var(--ink-soft);
     text-transform:uppercase;letter-spacing:.055em;margin-right:2px}
+  .grupo-ordem{margin-left:auto;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+  .grupo-ordem button{font-size:13.5px;padding:7px 13px;white-space:nowrap}
   .resumo-filtro{font-size:13.5px;color:var(--ink-soft);margin:0 0 16px}
   .resumo-filtro strong{color:var(--ink);font-weight:620}
   .resumo-filtro.alerta{color:var(--danger)}
@@ -320,6 +322,8 @@
     .abas{gap:18px}
     .aba{font-size:14px}
     .search{flex-basis:100%}
+    .grupo-ordem{margin-left:0;width:100%}
+    .grupo-ordem select{flex:1}
     .grid-cards{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:13px}
     .thumb{aspect-ratio:1;font-size:32px}
     .animal-body{padding:11px 12px 13px}
@@ -456,6 +460,17 @@
       <span class="ate">até</span>
       <input id="filtro-data-ate" type="date" aria-label="Até">
       <button class="btn-ghost hidden" id="limpar-datas">Limpar período</button>
+
+      <span class="grupo-ordem">
+        <span class="rotulo">Ordenar por</span>
+        <select id="ordenar-campo" aria-label="Escolher a ordenação">
+          <option value="criado_em">Cadastro</option>
+          <option value="nome">Nome</option>
+          <option value="data_resgate">Data do resgate</option>
+          <option value="data_adocao">Data da adoção</option>
+        </select>
+        <button class="btn" id="ordenar-direcao" aria-label="Inverter a ordem"></button>
+      </span>
     </div>
 
     <p class="resumo-filtro hidden" id="resumo-filtro"></p>
@@ -657,6 +672,8 @@
   var urls = {};          // cache path -> url assinada
   var filtroStatus = "todos";
   var campoData = "data_resgate";
+  var ordemCampo = "criado_em";
+  var ordemAsc = false;
   var dataDe = "";
   var dataAte = "";
   var abaAtual = "castracao";
@@ -977,15 +994,36 @@
     return true;
   }
 
+  function rotuloDaOrdem() {
+    if (ordemCampo === "nome") return ordemAsc ? "A → Z" : "Z → A";
+    return ordemAsc ? "Mais antigos" : "Mais recentes";
+  }
+
+  function ordenar(lista) {
+    var sentido = ordemAsc ? 1 : -1;
+    return lista.slice().sort(function (x, y) {
+      var a = x[ordemCampo], b = y[ordemCampo];
+      // quem não tem o campo preenchido vai para o fim, nos dois sentidos
+      if (!a && !b) return 0;
+      if (!a) return 1;
+      if (!b) return -1;
+      if (ordemCampo === "nome") {
+        return String(a).localeCompare(String(b), "pt-BR", { sensitivity: "base" }) * sentido;
+      }
+      a = String(a); b = String(b);
+      return (a < b ? -1 : a > b ? 1 : 0) * sentido;
+    });
+  }
+
   function visiveis() {
     var t = termoBusca.toLowerCase();
-    return animais.filter(function (a) {
+    return ordenar(animais.filter(function (a) {
       if (filtroStatus !== "todos" && a.status !== filtroStatus) return false;
       if (!dentroDoPeriodo(a)) return false;
       if (!t) return true;
       return [a.nome, a.especie, a.cor, a.local_resgate, a.adotante_nome, a.microchip, a.observacoes]
         .some(function (c) { return c && String(c).toLowerCase().indexOf(t) !== -1; });
-    });
+    }));
   }
 
   function temFiltroAtivo() {
@@ -1074,6 +1112,20 @@
     });
     render();
   });
+
+  $("ordenar-campo").addEventListener("change", function (e) {
+    ordemCampo = e.target.value;
+    $("ordenar-direcao").textContent = rotuloDaOrdem();
+    render();
+  });
+
+  $("ordenar-direcao").addEventListener("click", function () {
+    ordemAsc = !ordemAsc;
+    this.textContent = rotuloDaOrdem();
+    render();
+  });
+
+  $("ordenar-direcao").textContent = rotuloDaOrdem();
 
   $("filtro-campo-data").addEventListener("change", function (e) {
     campoData = e.target.value;

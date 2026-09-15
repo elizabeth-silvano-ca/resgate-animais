@@ -179,6 +179,11 @@ diz quantos estão aparecendo de quantos e qual período está valendo. Animais 
 escolhida ficam de fora do recorte — um animal não adotado, por exemplo, não aparece ao
 filtrar por data da adoção.
 
+**Ordenação:** ao lado, dá para ordenar por cadastro, nome, data do resgate ou data da
+adoção, e inverter o sentido no botão. O rótulo acompanha o campo — *A → Z* e *Z → A*
+para nome, *Mais recentes* e *Mais antigos* para datas. Quem está sem a data escolhida
+vai para o fim da lista nos dois sentidos, em vez de embolar com o começo.
+
 ---
 
 ## Painel de castrações pendentes
