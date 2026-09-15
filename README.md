@@ -173,6 +173,12 @@ data da adoção e o **termo de adoção assinado** em PDF ou foto.
 Ainda tem busca por nome/local/adotante, filtro por status, contadores no topo
 e **Exportar** (CSV que abre no Excel ou Google Planilhas).
 
+**Filtro por período:** na aba Animais dá para recortar a lista por **data do resgate**
+ou **data da adoção**, informando início, fim ou os dois. Uma linha abaixo dos filtros
+diz quantos estão aparecendo de quantos e qual período está valendo. Animais sem a data
+escolhida ficam de fora do recorte — um animal não adotado, por exemplo, não aparece ao
+filtrar por data da adoção.
+
 ---
 
 ## Painel de castrações pendentes
