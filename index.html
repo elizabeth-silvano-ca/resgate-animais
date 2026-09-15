@@ -115,8 +115,9 @@
     padding:5px 12px;font-size:13px;font-weight:620}
 
   /* ---------- topo ---------- */
-  .topbar{background:color-mix(in srgb, var(--surface) 86%, transparent);border-bottom:1px solid var(--line);
-    position:sticky;top:0;z-index:20;backdrop-filter:saturate(1.6) blur(10px)}
+  .topo{position:sticky;top:0;z-index:20}
+  .topbar{background:color-mix(in srgb, var(--surface) 92%, transparent);border-bottom:1px solid var(--line);
+    backdrop-filter:saturate(1.6) blur(10px)}
   .topbar-in{max-width:1180px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .brand{display:flex;align-items:center;gap:10px;font-weight:680;font-size:17px;margin-right:auto;
     letter-spacing:-.015em}
@@ -369,9 +370,11 @@
 
 <!-- ============ 3. APP ============ -->
 <div id="tela-app" class="hidden">
+  <div class="topo">
   <div class="faixa-demo hidden" id="faixa-demo">
-    <span><strong>Modo demonstração.</strong> Os dados existem só nesta aba e somem ao recarregar a página.</span>
-    <button id="demo-sair">Conectar meu Supabase</button>
+    <span><strong>Modo demonstração.</strong> Nada é salvo de verdade — os dados existem só nesta aba
+      e somem ao recarregar a página.</span>
+    <button id="demo-sair">Sair da demonstração</button>
   </div>
   <header class="topbar">
     <div class="topbar-in">
@@ -383,6 +386,7 @@
       <button class="btn-ghost" id="btn-sair">Sair</button>
     </div>
   </header>
+  </div>
 
   <main>
     <div class="stats" id="stats"></div>
@@ -1294,7 +1298,9 @@
       }
 
       fecharModais();
-      toast(editandoId ? "Cadastro atualizado." : "Animal cadastrado.");
+      toast(emDemonstracao()
+        ? "Salvo só na demonstração — isso não vai para o banco."
+        : (editandoId ? "Cadastro atualizado." : "Animal cadastrado."));
       mostrarAba("animais");   // mostra o resultado de quem acabou de salvar
       await carregar();
     } catch (e) {
