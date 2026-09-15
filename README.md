@@ -136,9 +136,8 @@ O site fica em `https://SEU-USUARIO.github.io/resgate-animais/` em alguns minuto
    Clique em **Configurar a conexão**, cole a **URL** e a **chave anon**, e conecte.
    (Para voltar a essa tela depois, acrescente `#configurar` no fim do endereço.)
 2. Entre com a conta que você criou no passo 3.
-3. Para cada pessoa: crie a conta no painel do Supabase (passo 3) e mande o link
-   do botão **Convidar** — ele já vem com a conexão configurada, então a pessoa
-   só precisa digitar e-mail e senha.
+3. Para cada pessoa: crie a conta no painel do Supabase (passo 3) e mande o
+   endereço do site. Ela entra com o e-mail e a senha que você definiu.
 
 > **Deixe o site já nascendo conectado:** abra o `index.html`, ache
 > `var EMBUTIDO = {` no início do script e preencha `url` e `key`. Depois publique
@@ -240,4 +239,4 @@ Usar o sistema uma vez por semana já evita a pausa.
 | "Esse e-mail não tem conta neste sistema" | A conta ainda não foi criada no painel (passo 3). |
 | Quero abrir a tela de configuração de novo | Acrescente `#configurar` no fim do endereço do site. |
 | "Não consegui falar com o Supabase" | URL errada, ou o projeto está pausado (veja acima). |
-| Tela de configuração voltou | O navegador limpou o armazenamento. Use o link de **Convidar** de novo. |
+| Tela de configuração voltou | O navegador limpou o armazenamento. Acrescente `#configurar` no endereço e cole a URL e a chave de novo. |

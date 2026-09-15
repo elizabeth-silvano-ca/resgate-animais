@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Resgate — Cadastro de Animais</title>
-<meta name="versao-app" content="2026-09-15 18:10">
+<meta name="versao-app" content="2026-09-15 18:21">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E">
 <style>
   /* ---------- fundamentos ---------- */
@@ -389,7 +389,6 @@
     <div class="topbar-in">
       <div class="brand"><span class="mark">🐾</span> Resgate</div>
       <span class="who" id="quem"></span>
-      <button class="btn" id="btn-link">Convidar</button>
       <button class="btn" id="btn-csv">Exportar</button>
       <button class="btn-primary" id="btn-novo">+ Novo animal</button>
       <button class="btn-ghost" id="btn-sair">Sair</button>
@@ -737,12 +736,6 @@
       if (salvo && salvo.url && salvo.key) return salvo;
     } catch (e) { /* storage bloqueado */ }
     return null;
-  }
-
-  function linkConvite() {
-    var base = location.origin + location.pathname;
-    if (EMBUTIDO.url && EMBUTIDO.key) return base;
-    return base + "#config=" + encodeURIComponent(btoa(config.url + "|" + config.key));
   }
 
   function limparHash() {
@@ -1327,21 +1320,7 @@
 
   $("btn-novo").addEventListener("click", function () { abrirForm(null); });
 
-  /* ========== convite e exportação ========== */
-
-  $("btn-link").addEventListener("click", async function () {
-    if (emDemonstracao()) {
-      toast("Na demonstração não há link para compartilhar — conecte um Supabase primeiro.", true);
-      return;
-    }
-    var link = linkConvite();
-    try {
-      await navigator.clipboard.writeText(link);
-      toast("Link copiado. Quem abrir cria a própria conta e vê os mesmos animais.");
-    } catch (e) {
-      prompt("Copie o link e envie para quem vai usar:", link);
-    }
-  });
+  /* ========== exportação ========== */
 
   $("btn-csv").addEventListener("click", function () {
     var colunas = ["nome", "especie", "sexo", "porte", "idade", "cor", "castrado", "vacinado",
